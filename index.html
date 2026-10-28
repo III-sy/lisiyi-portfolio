@@ -1652,12 +1652,19 @@ body.nav-open .main-wrapper {
 
 .cert-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
 .cert-grid .cert-item {
   aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.cert-grid .cert-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @media (max-width: 768px) {
@@ -2946,10 +2953,12 @@ video::-internal-media-controls-download-button {
     <div class="awards-certificates reveal">
       <h3>证书 / CERTIFICATES</h3>
       <div class="cert-grid">
-        <div class="cert-item img-placeholder"><span>证书</span></div>
-        <div class="cert-item img-placeholder"><span>证书</span></div>
-        <div class="cert-item img-placeholder"><span>证书</span></div>
-        <div class="cert-item img-placeholder"><span>证书</span></div>
+        <div class="cert-item"><img src="assets/images/cert_1.jpg" alt="证书1"></div>
+        <div class="cert-item"><img src="assets/images/cert_2.jpg" alt="证书2"></div>
+        <div class="cert-item"><img src="assets/images/cert_3.png" alt="证书3"></div>
+        <div class="cert-item"><img src="assets/images/cert_4.jpg" alt="证书4"></div>
+        <div class="cert-item"><img src="assets/images/cert_5.png" alt="证书5"></div>
+        <div class="cert-item"><img src="assets/images/cert_6.png" alt="证书6"></div>
       </div>
     </div>
   </div>
@@ -4426,6 +4435,8 @@ function initVideoModal() {
 
 </body>
 </html>
+
+
 
 
 
