@@ -1,0 +1,4448 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>李思逸 LI SIYI — Portfolio</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@200;300;400;600;700;900&family=Noto+Sans+SC:wght@200;300;400;500;700&display=swap">
+<style>
+/* ============================================================
+   全局变量与重置
+   ============================================================ */
+:root {
+  --bg: #0a0a0a;
+  --bg-soft: #111111;
+  --text: #f5f5f5;
+  --text-dim: rgba(245,245,245,0.5);
+  --text-faint: rgba(245,245,245,0.25);
+  --line: rgba(245,245,245,0.08);
+  --line-strong: rgba(245,245,245,0.2);
+  --accent: #f5f5f5;
+  --serif: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+::selection { background: rgba(245,245,245,0.15); color: #fff; }
+
+a { color: inherit; text-decoration: none; }
+button { background: none; border: none; color: inherit; font-family: inherit; cursor: none; }
+img { max-width: 100%; display: block; }
+
+/* ============================================================
+   自定义光标
+   ============================================================ */
+.cursor-dot {
+  position: fixed;
+  width: 8px; height: 8px;
+  background: var(--text);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s var(--ease), height 0.3s var(--ease), background 0.3s;
+  mix-blend-mode: difference;
+}
+
+.cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(245,245,245,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s var(--ease), height 0.4s var(--ease), border-color 0.3s, opacity 0.3s;
+}
+
+.cursor-dot.hover { width: 0; height: 0; }
+.cursor-ring.hover { width: 64px; height: 64px; border-color: rgba(245,245,245,0.7); }
+
+/* 音效开关 */
+.sound-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  background: rgba(20,20,20,0.8);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  font-family: inherit;
+}
+
+.sound-toggle:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.5);
+}
+
+.sound-toggle.active {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+@media (max-width: 768px) {
+  body { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none; }
+  button, a { cursor: pointer; }
+}
+
+/* ============================================================
+   页面切换遮罩
+   ============================================================ */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 5000;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+
+.page-transition.active {
+  animation: pageSlide 0.8s var(--ease) forwards;
+}
+
+@keyframes pageSlide {
+  0% { transform: translateY(100%); }
+  40% { transform: translateY(0); }
+  60% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+/* ============================================================
+   左侧固定导航（电子书书签形式：hover展开）
+   ============================================================ */
+.side-nav {
+  position: fixed;
+  top: 0; left: 0;
+  width: 48px;
+  height: 100vh;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: rgba(8,8,8,0.97);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  border-right: 1px solid var(--line);
+}
+
+.side-nav.open {
+  width: 240px;
+}
+
+/* 书签角（收起时露出） */
+.bookmark-tab {
+  position: absolute;
+  top: 0; left: 0;
+  width: 48px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0;
+  transition: opacity 0.3s 0.1s;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.side-nav.open .bookmark-tab {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* 书签头部（白色燕尾形） */
+.bookmark-tab .tab-head {
+  width: 100%;
+  height: 70px;
+  background: var(--text);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookmark-tab .tab-head::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 100%;
+  height: 16px;
+  background: var(--text);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+}
+
+.bookmark-tab .tab-head .tab-num {
+  font-family: var(--serif);
+  font-size: 11px;
+  color: var(--bg);
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-top: -10px;
+}
+
+/* 书签竖排文字 */
+.bookmark-tab .tab-text {
+  writing-mode: vertical-rl;
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.5em;
+  color: var(--text-dim);
+  margin-top: 32px;
+  flex: 1;
+}
+
+.bookmark-tab .tab-bottom {
+  writing-mode: vertical-rl;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+
+/* 展开后的导航内容 */
+.side-nav .nav-content {
+  width: 240px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+  flex-shrink: 0;
+}
+
+.side-nav.open .nav-content {
+  opacity: 1;
+  transition: opacity 0.3s 0.2s;
+}
+
+.side-nav .logo {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  line-height: 1.4;
+  margin-bottom: 40px;
+  flex-shrink: 0;
+}
+
+.side-nav .logo span {
+  display: block;
+  font-weight: 200;
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  margin-top: 6px;
+  font-family: var(--sans);
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.nav-menu > li {
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  padding: 14px 0;
+  transition: color 0.3s, padding-left 0.4s var(--ease);
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-menu a::before {
+  content: '';
+  position: absolute;
+  left: -32px; top: 50%;
+  width: 0; height: 1px;
+  background: var(--text);
+  transition: width 0.4s var(--ease);
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  color: var(--text);
+  padding-left: 10px;
+}
+
+.nav-menu a:hover::before,
+.nav-menu a.active::before { width: 24px; }
+
+.nav-menu a .num {
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  min-width: 20px;
+}
+
+/* 作品二级菜单 */
+.nav-submenu {
+  list-style: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s var(--ease);
+}
+
+.nav-submenu.open {
+  max-height: 300px;
+}
+
+.nav-submenu li a {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  padding: 10px 0 10px 34px;
+  color: var(--text-faint);
+  border-bottom: none;
+}
+
+.nav-submenu li a::before {
+  left: 14px;
+  width: 6px;
+  background: var(--text-faint);
+  transition: all 0.3s;
+}
+
+.nav-submenu li a:hover {
+  color: var(--text);
+  padding-left: 40px;
+}
+
+.nav-submenu li a:hover::before {
+  width: 14px;
+  background: var(--text);
+}
+
+/* 作品菜单项的展开箭头 */
+.nav-works-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: none;
+}
+
+.nav-works-toggle .arrow {
+  font-size: 10px;
+  color: var(--text-faint);
+  transition: transform 0.4s var(--ease);
+  margin-left: auto;
+}
+
+.nav-works-toggle.open .arrow {
+  transform: rotate(90deg);
+  color: var(--text);
+}
+
+.side-nav .nav-footer {
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.25em;
+  line-height: 2;
+  white-space: nowrap;
+  margin-top: auto;
+  padding-top: 32px;
+  flex-shrink: 0;
+}
+
+/* 首页模式：隐藏左侧导航 */
+body.home-mode .side-nav { display: none; }
+body.home-mode .main-wrapper { margin-left: 0; }
+
+/* 主内容区左边距（跟随书签展开/收起） */
+.main-wrapper {
+  margin-left: 48px;
+  min-height: 100vh;
+  transition: margin-left 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.nav-open .main-wrapper {
+  margin-left: 240px;
+}
+
+/* 移动端菜单 */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+}
+
+.mobile-menu-btn span {
+  display: block;
+  width: 24px; height: 1px;
+  background: var(--text);
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.mobile-menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
+.mobile-menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.mobile-nav.open { opacity: 1; pointer-events: all; }
+
+.mobile-nav a {
+  font-family: var(--serif);
+  font-size: 28px;
+  letter-spacing: 0.15em;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+.mobile-nav.open a {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mobile-nav.open a:nth-child(1) { transition-delay: 0.1s; }
+.mobile-nav.open a:nth-child(2) { transition-delay: 0.15s; }
+.mobile-nav.open a:nth-child(3) { transition-delay: 0.2s; }
+.mobile-nav.open a:nth-child(4) { transition-delay: 0.25s; }
+.mobile-nav.open a:nth-child(5) { transition-delay: 0.3s; }
+
+@media (max-width: 768px) {
+  .side-nav {
+    transform: translateX(-100%);
+    transition: transform 0.4s var(--ease);
+    width: 260px !important;
+  }
+  .side-nav.open { transform: translateX(0); }
+  .side-nav .bookmark-tab { display: none; }
+  .side-nav .nav-content {
+    opacity: 1 !important;
+    padding: 40px 32px;
+  }
+  .main-wrapper { margin-left: 0 !important; }
+  .mobile-menu-btn { display: flex; position: fixed; top: 20px; left: 20px; z-index: 110; background: rgba(8,8,8,0.8); padding: 12px; border-radius: 50%; }
+  body.home-mode .mobile-menu-btn { display: none; }
+}
+
+/* ============================================================
+   页面容器
+   ============================================================ */
+.page {
+  display: none;
+  min-height: 100vh;
+  opacity: 0;
+  animation: pageFadeIn 0.8s var(--ease-out) forwards;
+}
+
+.page.active { display: block; }
+
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   文字拆分动画 - 丰富入场
+   ============================================================ */
+.split-text .char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%) scale(0.8);
+  filter: blur(8px);
+  animation: charRise 1s var(--ease-out) forwards;
+}
+
+@keyframes charRise {
+  0% {
+    opacity: 0;
+    transform: translateY(100%) scale(0.8);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* 第一行李思逸：从左侧滑入 */
+.line-name .char {
+  animation-name: charSlideLeft;
+  transform: translateX(-60%) scale(0.9);
+}
+
+@keyframes charSlideLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-60%) scale(0.9) rotate(-5deg);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1) rotate(0deg);
+    filter: blur(0);
+  }
+}
+
+/* 第二行作品集：从下方升起+弹跳 */
+.line-works .char {
+  animation-name: charBounceUp;
+  transform: translateY(120%) scale(0.7);
+}
+
+@keyframes charBounceUp {
+  0% {
+    opacity: 0;
+    transform: translateY(120%) scale(0.7);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-15%) scale(1.05);
+    filter: blur(0);
+  }
+  75% {
+    transform: translateY(5%) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ============================================================
+   滚动渐入
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   图片占位符
+   ============================================================ */
+.img-placeholder {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.img-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(245,245,245,0.03), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.img-placeholder span {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+/* ============================================================
+   首页 HOME（艺术化排版）
+   ============================================================ */
+.home-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 80px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 竖排装饰文字 */
+.hero-vertical-text {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: left center;
+  font-size: 11px;
+  letter-spacing: 0.6em;
+  color: var(--text-faint);
+  white-space: nowrap;
+  opacity: 0.6;
+}
+
+/* 艺术化大标题 - 两行左对齐 */
+.home-hero h1 {
+  font-family: var(--serif);
+  font-weight: 200;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  margin-bottom: 0;
+  position: relative;
+}
+
+.home-hero h1 .line {
+  display: block;
+  overflow: hidden;
+}
+
+.home-hero h1 .line-name {
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
+.home-hero h1 .line-works {
+  font-size: clamp(48px, 7vw, 90px);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.home-hero .hero-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.25em;
+  max-width: 420px;
+  line-height: 2.4;
+  font-weight: 300;
+  margin-top: 40px;
+  margin-left: 8px;
+}
+
+/* 底部信息 */
+.hero-bottom-meta {
+  position: absolute;
+  bottom: 50px;
+  left: 80px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-bottom-meta .dot {
+  opacity: 0.5;
+}
+
+/* 单张大头贴 - 左侧 */
+.hero-stickers {
+  position: absolute;
+  top: 50%;
+  left: 16%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 240px;
+  pointer-events: none;
+  z-index: 100;
+  perspective: 800px;
+}
+
+.sticker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: none;
+  pointer-events: auto;
+  cursor: default;
+  transform-style: preserve-3d;
+  will-change: transform;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+  animation: stickerBounceIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, stickerWobble 3.5s ease-in-out 0.9s infinite;
+}
+
+@keyframes stickerBounceIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2) rotate(10deg);
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(0.9) rotate(-5deg);
+  }
+  85% {
+    transform: translate(-50%, -50%) scale(1.05) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(-8deg);
+  }
+}
+
+@keyframes stickerWobble {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(-8deg);
+  }
+  25% {
+    transform: translate(-50%, -52%) rotate(-5deg);
+  }
+  50% {
+    transform: translate(-50%, -48%) rotate(-10deg);
+  }
+  75% {
+    transform: translate(-50%, -51%) rotate(-6deg);
+  }
+}
+
+.stack-single {
+  width: 170px;
+  z-index: 10;
+}
+
+.sticker img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.5));
+  clip-path: inset(0 0 7% 0);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.sticker:hover {
+  z-index: 30 !important;
+}
+
+/* 首页布局 */
+.hero-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-left {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.hero-left h1 {
+  text-align: center;
+}
+
+.hero-right {
+  position: relative;
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  grid-column: 2;
+  justify-self: end;
+  width: 100%;
+  pointer-events: none;
+}
+
+.hero-right .nav-art-item {
+  pointer-events: auto;
+}
+
+/* 艺术化导航 - 错落左右交替 */
+.hero-nav-art {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 40px;
+}
+
+.nav-art-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  cursor: none;
+  text-decoration: none;
+  transition: all 0.4s var(--ease);
+  padding: 12px 0;
+  opacity: 0;
+  transform: translateX(50px);
+  animation: navItemIn 0.7s var(--ease-out) forwards;
+}
+
+@keyframes navItemIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 导航入场延迟 */
+.nav-art-item:nth-child(1) { animation-delay: 0.9s; }
+.nav-art-item:nth-child(2) { animation-delay: 1.05s; }
+.nav-art-item:nth-child(3) { animation-delay: 1.2s; }
+.nav-art-item:nth-child(4) { animation-delay: 1.35s; }
+
+/* 右左右左交替错落 - 更靠右紧凑 */
+.nav-art-item:nth-child(1) {
+  justify-content: flex-end;
+  padding-right: 5%;
+}
+.nav-art-item:nth-child(2) {
+  justify-content: flex-end;
+  padding-right: 18%;
+}
+.nav-art-item:nth-child(3) {
+  justify-content: flex-end;
+  padding-right: 8%;
+}
+.nav-art-item:nth-child(4) {
+  justify-content: flex-end;
+  padding-right: 22%;
+}
+
+.nav-art-item .nav-art-idx {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  font-family: var(--sans);
+  transition: all 0.4s var(--ease);
+  flex-shrink: 0;
+}
+
+.nav-art-item .nav-art-title {
+  font-family: var(--serif);
+  font-size: clamp(24px, 2.8vw, 40px);
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  transition: all 0.35s var(--ease);
+  position: relative;
+}
+
+.nav-art-item:hover .nav-art-idx {
+  color: var(--text);
+  transform: translateX(-6px);
+}
+
+.nav-art-item:hover .nav-art-title {
+  color: var(--text);
+  letter-spacing: 0.28em;
+  transform: scale(1.28);
+  text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,255,255,0.2);
+}
+
+.nav-art-item:hover {
+  padding-right: 0% !important;
+}
+
+/* 首页页脚联系方式区 */
+.home-footer {
+  padding: 80px 60px 40px;
+  border-top: 1px solid var(--line);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 60px;
+  margin-bottom: 60px;
+}
+
+.footer-left {
+  flex: 1;
+}
+
+.footer-label {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--text-faint);
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  transition: padding-left 0.3s var(--ease);
+}
+
+.contact-item:hover {
+  padding-left: 12px;
+}
+
+.contact-key {
+  font-size: 12px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  min-width: 50px;
+  font-family: var(--sans);
+}
+
+.contact-val {
+  font-family: var(--serif);
+  font-size: clamp(18px, 2vw, 28px);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  transition: letter-spacing 0.3s var(--ease);
+}
+
+.contact-item:hover .contact-val {
+  letter-spacing: 0.1em;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.qr-wrap img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+.qr-wrap span {
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.15em;
+  font-family: var(--sans);
+}
+
+/* hover预览图 */
+.featured-preview {
+  position: fixed;
+  width: 320px; height: 200px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+  transition: opacity 0.3s, transform 0.4s var(--ease);
+  overflow: hidden;
+}
+
+.featured-preview.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.featured-preview .img-placeholder { width: 100%; height: 100%; }
+
+@media (max-width: 768px) {
+  .home-hero { padding: 100px 24px 60px; }
+  .hero-vertical-text { display: none; }
+  .hero-bottom-meta { left: 24px; bottom: 30px; font-size: 9px; gap: 10px; flex-wrap: wrap; }
+  .hero-layout { grid-template-columns: 1fr; gap: 30px; }
+  .hero-left { position: relative; left: auto; top: auto; transform: none; text-align: center; padding: 20px 0; }
+  .hero-right { border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 24px; height: auto; grid-column: auto; justify-self: auto; }
+  .hero-nav-art { gap: 2px; padding-left: 0; }
+  .nav-art-item { padding: 10px 0; }
+  .nav-art-item:nth-child(1) { padding-right: 3%; }
+  .nav-art-item:nth-child(2) { padding-right: 12%; }
+  .nav-art-item:nth-child(3) { padding-right: 5%; }
+  .nav-art-item:nth-child(4) { padding-right: 15%; }
+  .nav-art-item .nav-art-title { font-size: 22px; }
+  .nav-art-item:hover .nav-art-title { transform: scale(1.06); }
+  .hero-stickers { width: 140px; height: 170px; left: 22%; opacity: 0.9; }
+  .stack-single { width: 120px; }
+  .home-footer { padding: 50px 24px 30px; }
+  .footer-content { flex-direction: column; gap: 40px; margin-bottom: 40px; }
+  .footer-contact { gap: 16px; }
+  .contact-item { gap: 16px; padding-bottom: 14px; }
+  .contact-val { font-size: 18px; }
+  .qr-wrap img { width: 100px; height: 100px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; padding-top: 20px; }
+  .featured-item {
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    padding: 28px 0;
+  }
+  .featured-item .item-cat, .featured-item .item-year { display: none; }
+  .featured-preview { display: none; }
+}
+
+/* ============================================================
+   作品列表页 WORKS
+   ============================================================ */
+.works-page {
+  padding: 140px 60px 120px;
+  min-height: 100vh;
+}
+
+.works-header {
+  margin-bottom: 80px;
+}
+
+.works-header .page-title {
+  font-family: var(--serif);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  margin-bottom: 24px;
+}
+
+.works-header .page-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  max-width: 480px;
+  line-height: 2;
+}
+
+/* 分类筛选 */
+.works-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  justify-content: flex-end;
+  margin-top: -100px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+}
+
+.works-filters button {
+  padding: 18px 28px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  position: relative;
+  transition: color 0.3s;
+}
+
+.works-filters button::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 100%; height: 1px;
+  background: var(--text);
+  transform: scaleX(0);
+  transition: transform 0.4s var(--ease);
+}
+
+.works-filters button:hover { color: var(--text-dim); }
+.works-filters button.active { color: var(--text); }
+.works-filters button.active::after { transform: scaleX(1); }
+
+/* 作品网格 */
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 40px 28px;
+}
+
+.work-card {
+  opacity: 0;
+  animation: cardFadeIn 0.6s var(--ease-out) forwards;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.work-card .card-thumb {
+  aspect-ratio: 4/3;
+  margin-bottom: 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+.work-card .card-thumb .img-placeholder,
+.work-card .card-thumb .card-thumb-img {
+  width: 100%; height: 100%;
+  transition: transform 0.7s var(--ease);
+}
+
+.work-card:hover .card-thumb .img-placeholder,
+.work-card:hover .card-thumb .card-thumb-img { transform: scale(1.04); }
+
+.work-card .card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.work-card .card-cat {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.work-card .card-year {
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+.work-card .card-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  margin-bottom: 5px;
+  transition: letter-spacing 0.3s;
+}
+
+.work-card:hover .card-title { letter-spacing: 0.1em; }
+
+.work-card .card-role {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 768px) {
+  .works-page { padding: 100px 24px 80px; }
+  .works-grid { grid-template-columns: repeat(2, 1fr); gap: 32px 16px; }
+  .works-filters button { padding: 14px 16px; font-size: 11px; }
+  .work-card .card-title { font-size: 14px; }
+  .work-card .card-role { font-size: 10px; }
+}
+
+/* ============================================================
+   作品详情页 WORK DETAIL
+   ============================================================ */
+.detail-page {
+  padding: 120px 0 80px;
+}
+
+.detail-hero {
+  padding: 0 60px 80px;
+}
+
+.detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--text-dim);
+  margin-bottom: 60px;
+  transition: color 0.3s, gap 0.3s;
+}
+
+.detail-back:hover { color: var(--text); gap: 20px; }
+
+.detail-back .arrow {
+  width: 30px; height: 1px;
+  background: currentColor;
+  position: relative;
+}
+
+.detail-back .arrow::before {
+  content: '';
+  position: absolute;
+  left: 0; top: -3px;
+  width: 8px; height: 1px;
+  background: currentColor;
+  transform: rotate(-45deg);
+  transform-origin: left;
+}
+
+.detail-title {
+  font-family: var(--serif);
+  font-size: clamp(40px, 7vw, 90px);
+  font-weight: 200;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  margin-bottom: 32px;
+}
+
+.detail-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
+.detail-info-item .label {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.detail-info-item .value {
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+
+/* 跟随光标移动的视差画廊（allagi.music风格） */
+.detail-gallery {
+  padding: 0;
+  margin-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-viewport {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  min-height: 400px;
+  overflow: hidden;
+  cursor: none;
+}
+
+.gallery-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: flex;
+  gap: 24px;
+  padding: 0 60px;
+  transform: translateY(-50%);
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+.gallery-track .gallery-item {
+  flex-shrink: 0;
+  width: 45vw;
+  max-width: 700px;
+  aspect-ratio: 16/10;
+  transition: transform 0.4s var(--ease), opacity 0.4s;
+}
+
+.gallery-track .gallery-item:hover {
+  transform: scale(1.02);
+}
+
+/* 画廊边缘渐隐 */
+.gallery-viewport::before,
+.gallery-viewport::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 120px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.gallery-viewport::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg), transparent);
+}
+
+.gallery-viewport::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg), transparent);
+}
+
+/* 光标提示 */
+.gallery-cursor-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.gallery-cursor-hint .line {
+  width: 40px; height: 1px;
+  background: var(--text-faint);
+}
+
+/* 图片计数器 */
+.gallery-counter {
+  position: absolute;
+  top: 20px;
+  right: 60px;
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.detail-desc {
+  padding: 0 60px;
+  max-width: 700px;
+  margin-bottom: 100px;
+}
+
+.detail-desc p {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 2.2;
+  margin-bottom: 20px;
+}
+
+/* 上下篇导航 */
+.detail-nav {
+  padding: 60px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.detail-nav .nav-link {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.detail-nav .nav-link.next { text-align: right; }
+
+.detail-nav .nav-label {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.detail-nav .nav-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  transition: letter-spacing 0.3s;
+}
+
+.detail-nav .nav-link:hover .nav-title { letter-spacing: 0.1em; }
+
+@media (max-width: 768px) {
+  .detail-hero, .detail-desc { padding-left: 24px; padding-right: 24px; }
+  .detail-nav { padding: 40px 24px; flex-direction: column; gap: 32px; }
+  .detail-nav .nav-link.next { text-align: left; }
+  .gallery-viewport { height: 50vh; min-height: 280px; }
+  .gallery-track { padding: 0 24px; gap: 12px; }
+  .gallery-track .gallery-item { width: 75vw; }
+  .gallery-viewport::before, .gallery-viewport::after { width: 40px; }
+  .gallery-counter { right: 24px; }
+}
+
+/* ============================================================
+   关于页 ABOUT
+   ============================================================ */
+.about-page {
+  padding: 140px 60px 120px;
+  min-height: 100vh;
+}
+
+.about-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  margin-bottom: 120px;
+  align-items: end;
+}
+
+.about-title {
+  font-family: var(--serif);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.about-portrait {
+  aspect-ratio: 3/4;
+  max-width: 360px;
+  justify-self: end;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  padding-top: 80px;
+  border-top: 1px solid var(--line);
+}
+
+.about-text p {
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 2.2;
+  margin-bottom: 24px;
+}
+
+.about-text p strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.about-skills h3 {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+
+.skill-list { list-style: none; }
+
+.skill-list li {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.skill-list li:first-child { border-top: 1px solid var(--line); }
+
+.skill-list .skill-name {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.skill-list .skill-level {
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.15em;
+}
+
+.about-timeline {
+  margin-top: 120px;
+}
+
+.about-timeline h3 {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 48px;
+  text-transform: uppercase;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 40px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.timeline-item:first-child { border-top: 1px solid var(--line); }
+
+.timeline-year {
+  font-size: 13px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+
+.timeline-content h4 {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
+.timeline-content p {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 768px) {
+  .about-page { padding: 100px 24px 80px; }
+  .about-hero { grid-template-columns: 1fr; gap: 48px; }
+  .about-portrait { justify-self: start; max-width: 280px; }
+  .about-content { grid-template-columns: 1fr; gap: 60px; }
+  .timeline-item { grid-template-columns: 80px 1fr; gap: 20px; }
+}
+
+/* ============================================================
+   获奖页 AWARDS
+   ============================================================ */
+.awards-page {
+  padding: 140px 60px 120px;
+  min-height: 100vh;
+}
+
+.awards-header {
+  margin-bottom: 80px;
+}
+
+.awards-title {
+  font-family: var(--serif);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  margin-bottom: 24px;
+}
+
+.awards-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  max-width: 480px;
+}
+
+.awards-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+
+.awards-col h3 {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line-strong);
+  text-transform: uppercase;
+}
+
+.award-entry {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  transition: padding-left 0.3s var(--ease);
+}
+
+.award-entry:hover { padding-left: 12px; }
+
+.award-entry .award-name {
+  font-size: 15px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+
+.award-entry .award-detail {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.award-entry .award-badge {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  padding: 3px 10px;
+  border: 1px solid var(--line-strong);
+  margin-top: 8px;
+  color: var(--text-dim);
+}
+
+.award-entry .award-badge.won {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.awards-certificates {
+  margin-top: 100px;
+  padding-top: 60px;
+  border-top: 1px solid var(--line);
+}
+
+.awards-certificates h3 {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.cert-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.cert-grid .cert-item {
+  aspect-ratio: 4/3;
+}
+
+@media (max-width: 768px) {
+  .awards-page { padding: 100px 24px 80px; }
+  .awards-columns { grid-template-columns: 1fr; gap: 60px; }
+  .cert-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+/* ============================================================
+   联系页 CONTACT
+   ============================================================ */
+.contact-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 60px 80px;
+}
+
+.contact-title {
+  font-family: var(--serif);
+  font-size: clamp(64px, 12vw, 160px);
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  margin-bottom: 80px;
+  line-height: 1;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 60px;
+  padding-top: 60px;
+  border-top: 1px solid var(--line);
+}
+
+.contact-item .label {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.contact-item .value {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  transition: opacity 0.3s;
+}
+
+.contact-item .value:hover { opacity: 0.6; }
+
+.contact-item .sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  letter-spacing: 0.05em;
+}
+
+.contact-footer {
+  margin-top: auto;
+  padding-top: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.2em;
+}
+
+@media (max-width: 768px) {
+  .contact-page { padding: 100px 24px 60px; }
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+  .contact-footer { flex-direction: column; gap: 16px; align-items: start; }
+}
+
+/* ============================================================
+   页脚（通用）
+   ============================================================ */
+.site-footer {
+  padding: 40px 60px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--text-faint);
+}
+
+@media (max-width: 768px) {
+  .site-footer { padding: 30px 24px; flex-direction: column; gap: 12px; }
+}
+
+/* ============================================================
+   作品探索页（长滚动连贯浏览）
+   ============================================================ */
+.explore-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* 顶部面包屑 */
+.explore-breadcrumb {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  padding: 24px 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-faint);
+  z-index: 50;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+  pointer-events: none;
+}
+
+.explore-breadcrumb a, .explore-breadcrumb span {
+  pointer-events: all;
+  color: var(--text-faint);
+  transition: color 0.3s;
+}
+
+.explore-breadcrumb a:hover { color: var(--text); }
+
+.explore-breadcrumb .sep {
+  color: var(--text-faint);
+  opacity: 0.5;
+}
+
+.explore-breadcrumb .current {
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 13px;
+}
+
+/* 左侧作品导航（右侧渐隐虚化，hover文字高亮） */
+.explore-side-nav {
+  position: fixed;
+  left: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  padding: 28px 20px;
+  max-height: 75vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  /* 右侧边缘渐隐虚化，上下不透明，虚化范围拉长 */
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to right, black 0%, black 75%, transparent 100%);
+}
+
+.explore-side-nav::-webkit-scrollbar { display: none; }
+
+.explore-side-nav .cat-label {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-left: 16px;
+  opacity: 0.4;
+  transition: opacity 0.4s ease;
+}
+
+.explore-side-nav:hover .cat-label {
+  opacity: 0.8;
+}
+
+.explore-side-nav .work-nav-item {
+  display: block;
+  padding: 11px 16px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  border-left: 1px solid var(--line);
+  transition: all 0.35s var(--ease);
+  cursor: none;
+  white-space: nowrap;
+  /* 鼠标移走时低亮 */
+  opacity: 0.3;
+}
+
+/* 鼠标进入导航区域时，所有文字高亮 */
+.explore-side-nav:hover .work-nav-item {
+  opacity: 0.7;
+}
+
+.explore-side-nav .work-nav-item:hover {
+  color: var(--text);
+  padding-left: 24px;
+  opacity: 1;
+}
+
+.explore-side-nav .work-nav-item.active {
+  color: var(--text);
+  border-left-color: var(--text);
+  padding-left: 24px;
+  font-family: var(--serif);
+  font-size: 15px;
+  opacity: 1;
+}
+
+.explore-side-nav .work-nav-item .idx {
+  font-size: 9px;
+  color: var(--text-faint);
+  margin-right: 8px;
+  letter-spacing: 0.05em;
+}
+
+/* 作品section */
+.explore-section {
+  min-height: 100vh;
+  padding: 60px 140px 60px 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+
+.explore-section:last-child { border-bottom: none; }
+
+/* 作品标题区 */
+.explore-section .section-header {
+  margin-bottom: 20px;
+}
+
+.explore-section .section-num {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+}
+
+.explore-section .section-title {
+  font-family: var(--serif);
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.explore-section .section-meta {
+  display: flex;
+  gap: 32px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* 图片视差滚动区 */
+.explore-gallery {
+  position: relative;
+  width: 100%;
+  height: 42vh;
+  min-height: 280px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.explore-gallery-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  transform: translateY(-50%);
+  will-change: transform;
+  align-items: center;
+}
+
+.explore-gallery-track .gallery-img {
+  flex-shrink: 0;
+  height: 38vh;
+  max-height: 480px;
+  min-height: 200px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: auto;
+}
+
+.explore-gallery-track .gallery-spacer {
+  flex-shrink: 0;
+  width: 15vw;
+  max-width: 220px;
+  min-width: 80px;
+  height: 38vh;
+  max-height: 480px;
+  min-height: 200px;
+}
+
+.explore-gallery-track .spacer-left {
+  background: linear-gradient(to right, #000 0%, #000 40%, transparent 100%);
+}
+
+.explore-gallery-track .spacer-right {
+  background: linear-gradient(to left, #000 0%, #000 40%, transparent 100%);
+}
+
+/* 单图作品：居中不滚动，高度自适应 */
+.explore-gallery.single-image {
+  cursor: default;
+  height: auto;
+  min-height: 0;
+  margin-bottom: 32px;
+}
+.explore-gallery.single-image .explore-gallery-track {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  justify-content: center;
+  padding: 20px 0;
+}
+.explore-gallery.single-image .gallery-img {
+  height: auto;
+  width: auto;
+  max-height: 65vh;
+  max-width: 60vw;
+  min-height: 0;
+}
+
+/* 单图作品：文字和图片间距拉开 */
+.explore-section:has(.single-image) .section-header {
+  margin-bottom: 40px;
+}
+.explore-section:has(.single-image) .explore-gallery {
+  margin-bottom: 40px;
+}
+.explore-section:has(.single-image) .explore-desc {
+  margin-top: 8px;
+}
+
+/* AIGC作品：左右布局 */
+.explore-section.aigc-layout .aigc-content {
+  display: flex;
+  gap: 32px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.explore-section.aigc-layout .aigc-left {
+  flex: 1.2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.explore-section.aigc-layout .aigc-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+/* 无图片仅视频时：视频占满宽度 */
+.explore-section.aigc-layout.video-only .aigc-content {
+  display: block;
+}
+.explore-section.aigc-layout.video-only .aigc-right {
+  width: 100%;
+}
+.explore-section.aigc-layout.video-only .video-player {
+  height: 55vh;
+  min-height: 360px;
+}
+
+/* 多视频网格布局：两行三列 */
+.explore-section.aigc-layout.multi-video .aigc-content {
+  display: block;
+}
+.explore-section.aigc-layout.multi-video .aigc-right {
+  width: 100%;
+}
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.video-grid .grid-video {
+  aspect-ratio: 9 / 16;
+  height: auto;
+  min-height: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.video-grid .grid-video video {
+  object-fit: cover;
+}
+.video-grid .video-play-btn {
+  width: 48px;
+  height: 48px;
+}
+.video-grid .video-play-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* AIGC导览标签 */
+.aigc-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+.explore-section.aigc-layout .explore-gallery {
+  height: 42vh;
+  min-height: 280px;
+  margin-bottom: 0;
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+}
+
+/* AIGC 3D轮播 图片样式 */
+.explore-section.aigc-layout .explore-gallery-track {
+  transform-style: preserve-3d;
+  padding: 0 10vw;
+}
+
+.explore-section.aigc-layout .gallery-img {
+  transition: transform 0.15s ease-out, filter 0.15s ease-out, opacity 0.15s ease-out;
+  transform-style: preserve-3d;
+  margin: 0 -40px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.explore-section.aigc-layout .gallery-spacer {
+  display: none;
+}
+
+/* 视频占位符 */
+.video-placeholder {
+  width: 100%;
+  height: 42vh;
+  min-height: 280px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255,255,255,0.02) 10px,
+    rgba(255,255,255,0.02) 20px
+  );
+}
+
+.video-placeholder-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #555;
+  z-index: 1;
+}
+
+.video-placeholder-inner svg {
+  opacity: 0.6;
+}
+
+.video-placeholder-inner span {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #666;
+}
+
+/* 视频播放器 */
+.video-player {
+  width: 100%;
+  height: 42vh;
+  min-height: 280px;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.video-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
+.video-player video::-webkit-media-controls {
+  z-index: 2147483647;
+}
+
+/* 视频中心播放按钮 */
+.video-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  padding-left: 4px;
+}
+
+.video-player:hover .video-play-btn {
+  background: rgba(0,0,0,0.7);
+  border-color: rgba(255,255,255,0.6);
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 0 30px rgba(255,255,255,0.3), 0 0 60px rgba(255,255,255,0.15);
+}
+
+.video-play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.25) !important;
+  animation: videoBtnShake 0.4s ease-in-out;
+}
+
+@keyframes videoBtnShake {
+  0%, 100% { transform: translate(-50%, -50%) scale(1.25) rotate(0deg); }
+  25% { transform: translate(-50%, -50%) scale(1.25) rotate(-5deg); }
+  75% { transform: translate(-50%, -50%) scale(1.25) rotate(5deg); }
+}
+
+/* 视频小窗hover发光 */
+.video-player {
+  transition: all 0.3s ease;
+}
+
+.video-player:hover {
+  box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 0 50px rgba(255,255,255,0.1);
+  transform: scale(1.02);
+}
+
+/* 视频放大弹窗 */
+.video-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-modal.active {
+  display: flex;
+}
+
+.video-modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+}
+
+.video-modal-box {
+  position: relative;
+  width: 48vw;
+  max-width: 720px;
+  min-width: 320px;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+  animation: videoModalIn 0.3s ease;
+}
+
+@keyframes videoModalIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.video-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.video-modal-close:hover {
+  background: rgba(0,0,0,0.85);
+  transform: translateX(-3px);
+}
+
+.video-modal-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+/* 竖屏视频弹窗 */
+.video-modal.vertical-video .video-modal-box {
+  width: 50vw;
+  max-width: 320px;
+  min-width: 240px;
+  aspect-ratio: 9 / 16;
+}
+.video-modal.vertical-video .video-modal-player {
+  aspect-ratio: 9 / 16;
+}
+
+.video-modal-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  display: block;
+  cursor: pointer;
+}
+
+/* 隐藏视频全屏按钮 */
+.video-modal-player video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+.video-modal-player video::-webkit-media-controls-overlay-enclosure {
+  display: none !important;
+}
+
+/* 隐藏视频下载按钮 */
+video::-webkit-media-controls-download-button {
+  display: none !important;
+}
+video::-internal-media-controls-download-button {
+  display: none !important;
+}
+
+/* 图片横向滚动进度条 */
+.gallery-scroll-indicator {
+  width: 100%;
+  max-width: 50vw;
+  margin: 12px 0 0 0;
+  padding-left: 12vw;
+}
+
+.gallery-scroll-track {
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gallery-scroll-thumb {
+  height: 100%;
+  width: 20%;
+  background: var(--text-dim);
+  border-radius: 2px;
+  transition: width 0.1s ease, transform 0.1s ease;
+  position: absolute;
+  left: 0;
+}
+
+/* 拖拽时图片放大 - 只放大当前图片 */
+.explore-gallery.dragging {
+  overflow: visible;
+  z-index: 99999;
+  position: relative;
+}
+
+.explore-gallery .gallery-img.zoom,
+.explore-gallery .gallery-placeholder.zoom {
+  transform: scale(1.35);
+  transition: transform 0.25s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  z-index: 100000;
+  position: relative;
+}
+
+.explore-gallery-track .gallery-placeholder {
+  flex-shrink: 0;
+  width: 50vw;
+  max-width: 750px;
+  aspect-ratio: 16/10;
+}
+
+/* 边缘渐隐 */
+.explore-gallery::before,
+.explore-gallery::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.explore-gallery::before {
+  display: none;
+}
+
+.explore-gallery::after {
+  display: none;
+}
+
+/* 作品介绍（下方） */
+.explore-desc {
+  max-width: 600px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.9;
+  letter-spacing: 0.05em;
+}
+
+.explore-desc .role-tag {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* 滚动提示 */
+.explore-scroll-hint {
+  position: fixed;
+  bottom: 30px;
+  right: 60px;
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.explore-scroll-hint .line {
+  width: 1px;
+  height: 40px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-scroll-hint .line::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: var(--text);
+  animation: scrollLine 2s infinite;
+}
+
+@keyframes scrollLine {
+  0% { top: -40px; }
+  100% { top: 40px; }
+}
+
+/* 分类切换栏（探索页顶部） */
+.explore-cat-bar {
+  position: fixed;
+  top: 60px;
+  right: 60px;
+  display: flex;
+  gap: 20px;
+  z-index: 60;
+  pointer-events: auto;
+}
+
+.explore-cat-bar a {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  padding: 6px 4px;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s;
+  cursor: none;
+  text-transform: uppercase;
+  pointer-events: auto;
+  text-decoration: none;
+}
+
+.explore-cat-bar a:hover { color: var(--text); }
+.explore-cat-bar a.active {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.explore-cat-bar button.active {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .explore-breadcrumb { padding: 16px 24px; font-size: 9px; }
+  .explore-side-nav { display: none; }
+  .explore-section { padding: 50px 24px 40px; }
+  .explore-gallery { height: 30vh; min-height: 180px; margin-bottom: 8px; }
+  .explore-gallery-track .gallery-img { height: 28vh; max-height: 300px; min-height: 160px; }
+  .explore-gallery-track .gallery-spacer { width: 20vw; min-width: 60px; height: 28vh; max-height: 300px; min-height: 160px; }
+  .explore-gallery-track .spacer-left { background: linear-gradient(to right, #000 0%, #000 30%, transparent 100%); }
+  .explore-gallery-track .spacer-right { background: linear-gradient(to left, #000 0%, #000 30%, transparent 100%); }
+  .explore-gallery.single-image .gallery-img { max-height: 55vh; max-width: 80vw; }
+  .explore-section:has(.single-image) .section-header { margin-bottom: 24px; }
+  .explore-section:has(.single-image) .explore-gallery { margin-bottom: 24px; }
+
+  /* AIGC手机端：上下布局 */
+  .explore-section.aigc-layout .aigc-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .explore-section.aigc-layout .explore-gallery {
+    height: 30vh;
+    min-height: 180px;
+    perspective: 600px;
+  }
+  .explore-section.aigc-layout.video-only .video-player {
+    height: 35vh;
+    min-height: 220px;
+  }
+  /* 手机端多视频：两列 */
+  .video-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .explore-section.aigc-layout .explore-gallery-track {
+    padding: 0 30vw;
+  }
+  .explore-section.aigc-layout .gallery-img {
+    margin: 0 -30px;
+  }
+  .video-placeholder {
+    height: 30vh;
+    min-height: 180px;
+  }
+  .video-player {
+    height: 30vh;
+    min-height: 180px;
+  }
+
+  /* 手机端禁用图片放大 */
+  .explore-gallery .gallery-img.zoom,
+  .explore-gallery .gallery-placeholder.zoom {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .explore-gallery-track .gallery-placeholder { width: 80vw; }
+  .explore-cat-bar { top: 16px; right: 16px; bottom: auto; flex-direction: row; gap: 12px; flex-wrap: wrap; justify-content: flex-end; max-width: 60vw; }
+  .explore-cat-bar a { font-size: 9px; letter-spacing: 0.15em; padding: 4px 2px; }
+  .explore-scroll-hint { display: none; }
+  .explore-section .section-title { font-size: 28px; }
+  .explore-section .section-header { margin-bottom: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 自定义光标 -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- 音效开关 -->
+<button class="sound-toggle active" id="soundToggle" aria-label="音效开关">
+  <span class="sound-label">音效 开</span>
+</button>
+
+<!-- 页面切换遮罩 -->
+<div class="page-transition" id="pageTransition"></div>
+
+<!-- 左侧固定导航（电子书书签形式：hover展开） -->
+<nav class="side-nav" id="sideNav">
+  <!-- 书签角（收起时露出） -->
+  <div class="bookmark-tab">
+    <div class="tab-head"><span class="tab-num">LSY</span></div>
+    <span class="tab-text">李思逸</span>
+    <span class="tab-bottom">Portfolio</span>
+  </div>
+  <!-- 展开后的导航内容 -->
+  <div class="nav-content">
+    <a href="#/" class="logo" data-hover>李思逸<span>LI SIYI</span></a>
+    <ul class="nav-menu">
+      <li><a href="#/" data-nav="home" data-hover><span class="num">01</span>首页</a></li>
+      <li><a href="#/works" data-nav="works" data-hover><span class="num">02</span>作品</a></li>
+      <li><a href="#/about" data-nav="about" data-hover><span class="num">03</span>关于</a></li>
+      <li><a href="#/awards" data-nav="awards" data-hover><span class="num">04</span>获奖</a></li>
+      <li><a href="#/contact" data-nav="contact" data-hover><span class="num">05</span>联系</a></li>
+    </ul>
+    <div class="nav-footer">
+      © 2026<br>SHANXI · CHINA<br>AVAILABLE FOR WORK
+    </div>
+  </div>
+</nav>
+
+<!-- 移动端菜单按钮 -->
+<button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="菜单">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- 移动端导航 -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#/" data-mobile-nav>首页</a>
+  <a href="#/works" data-mobile-nav>作品</a>
+  <a href="#/about" data-mobile-nav>关于</a>
+  <a href="#/awards" data-mobile-nav>获奖</a>
+  <a href="#/contact" data-mobile-nav>联系</a>
+</div>
+
+<!-- hover预览图 -->
+<div class="featured-preview" id="featuredPreview">
+  <div class="img-placeholder"><span>作品预览</span></div>
+</div>
+
+<!-- 主内容区 -->
+<div class="main-wrapper">
+
+<!-- ============================================================
+     首页 HOME
+     ============================================================ -->
+<div class="page" id="page-home">
+  <section class="home-hero">
+    <div class="hero-layout">
+      <div class="hero-left">
+        <h1 class="split-text" id="heroTitle">
+          <span class="line line-name">李思逸</span>
+          <span class="line line-works">作品集</span>
+        </h1>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-nav-art" id="heroNavArt">
+          <a class="nav-art-item" data-target="#/works" data-hover>
+            <span class="nav-art-idx">01</span>
+            <span class="nav-art-title">作品</span>
+          </a>
+          <a class="nav-art-item" data-target="#/about" data-hover>
+            <span class="nav-art-idx">02</span>
+            <span class="nav-art-title">关于</span>
+          </a>
+          <a class="nav-art-item" data-target="#/awards" data-hover>
+            <span class="nav-art-idx">03</span>
+            <span class="nav-art-title">获奖</span>
+          </a>
+          <a class="nav-art-item" data-target="#/contact" data-hover>
+            <span class="nav-art-idx">04</span>
+            <span class="nav-art-title">联系</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 单张大头贴 -->
+    <div class="hero-stickers" id="heroStickers">
+      <div class="sticker stack-single" data-depth="0.2" data-rot="14">
+        <img src="assets/images/avatar.png" alt="李思逸">
+      </div>
+    </div>
+  </section>
+
+    <div class="scroll-indicator">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <section class="home-footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <div class="footer-label reveal">CONTACT — 联系方式</div>
+        <div class="footer-contact">
+          <div class="contact-item reveal">
+            <span class="contact-key">微信</span>
+            <span class="contact-val">LI-SI-YII</span>
+          </div>
+          <div class="contact-item reveal">
+            <span class="contact-key">电话</span>
+            <span class="contact-val">15035646608</span>
+          </div>
+          <div class="contact-item reveal">
+            <span class="contact-key">邮箱</span>
+            <span class="contact-val">746516546@qq.com</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-right reveal">
+        <div class="qr-wrap">
+          <img src="assets/images/qrcode.png" alt="微信二维码">
+          <span>扫码添加微信</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 LI SIYI</span>
+      <span>SHANXI · CHINA</span>
+      <span>AVAILABLE FOR WORK</span>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================
+     作品列表页 WORKS
+     ============================================================ -->
+<div class="page" id="page-works">
+  <div class="works-page">
+    <div class="works-filters reveal" id="worksFilters">
+      <button class="active" data-filter="producing" data-hover>制片作品</button>
+      <button data-filter="art" data-hover>美术作品</button>
+      <button data-filter="still" data-hover>剧照作品</button>
+      <button data-filter="photo" data-hover>摄影作品</button>
+      <button data-filter="aigc" data-hover>AIGC创作</button>
+    </div>
+
+    <div class="works-header reveal">
+      <h1 class="page-title split-text" id="worksPageTitle">作品索引</h1>
+      <p class="page-desc">
+        全部影视作品项目速览。点击卡片查看单作品详情，或返回
+        <a href="#/explore" data-hover style="color:var(--text);border-bottom:1px solid var(--text-dim);">探索模式</a>
+        连贯浏览。
+      </p>
+    </div>
+
+    <div class="works-grid" id="worksGrid">
+      <!-- JS动态生成 -->
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span>© 2026 LI SIYI</span>
+    <span>SHANXI · CHINA</span>
+  </footer>
+</div>
+
+<!-- ============================================================
+     作品详情页 WORK DETAIL
+     ============================================================ -->
+<div class="page" id="page-detail">
+  <div class="detail-page">
+    <div class="detail-hero">
+      <a href="#/works" class="detail-back" data-hover>
+        <span class="arrow"></span>
+        <span>返回作品</span>
+      </a>
+      <h1 class="detail-title split-text" id="detailTitle">作品标题</h1>
+      <div class="detail-info-row" id="detailInfo">
+        <!-- JS动态生成 -->
+      </div>
+    </div>
+
+    <div class="detail-gallery" id="detailGallery">
+      <!-- JS动态生成图片占位 -->
+    </div>
+
+    <div class="detail-desc" id="detailDesc">
+      <!-- JS动态生成 -->
+    </div>
+
+    <div class="detail-nav">
+      <a href="#" class="nav-link prev" id="detailPrev" data-hover>
+        <div class="nav-label">← PREVIOUS</div>
+        <div class="nav-title" id="detailPrevTitle">上一篇</div>
+      </a>
+      <a href="#" class="nav-link next" id="detailNext" data-hover>
+        <div class="nav-label">NEXT →</div>
+        <div class="nav-title" id="detailNextTitle">下一篇</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     关于页 ABOUT
+     ============================================================ -->
+<div class="page" id="page-about">
+  <div class="about-page">
+    <div class="about-hero">
+      <h1 class="about-title split-text">关于</h1>
+      <div class="about-portrait img-placeholder reveal">
+        <span>个人照片</span>
+      </div>
+    </div>
+
+    <div class="about-content">
+      <div class="about-text reveal">
+        <p>
+          我是<strong>李思逸</strong>，山西传媒学院·山西电影学院
+          2022级影视摄影与制作（电影摄影方向）学生，2026届应届生。
+        </p>
+        <p>
+          从制片统筹到美术置景，从剧照摄影到AIGC全流程创作，
+          我始终在影视制作的各个环节中寻找属于自己的表达方式。
+          曾参与超过20部短片、短剧与广告项目的制作，
+          涵盖沙漠、冰湖、煤矿、古建、废墟等多种极端场景的实地拍摄。
+        </p>
+        <p>
+          熟悉从前期筹备、现场执行到后期制作的完整流程，
+          同时深耕AIGC影像创作，将传统影视经验与人工智能工具结合，
+          探索影像叙事的更多可能性。
+        </p>
+      </div>
+
+      <div class="about-skills reveal">
+        <h3>专业技能 / SKILLS</h3>
+        <ul class="skill-list">
+          <li><span class="skill-name">制片统筹</span><span class="skill-level">PRODUCING</span></li>
+          <li><span class="skill-name">美术置景</span><span class="skill-level">ART DIRECTION</span></li>
+          <li><span class="skill-name">剧照摄影</span><span class="skill-level">STILLS</span></li>
+          <li><span class="skill-name">影像剪辑</span><span class="skill-level">EDITING</span></li>
+          <li><span class="skill-name">特效化妆</span><span class="skill-level">SFX MAKEUP</span></li>
+          <li><span class="skill-name">AIGC创作</span><span class="skill-level">AI GENERATIVE</span></li>
+        </ul>
+        <div style="margin-top:40px;display:flex;flex-wrap:wrap;gap:10px;">
+          <span style="padding:6px 16px;border:1px solid var(--line-strong);font-size:11px;letter-spacing:0.15em;color:var(--text-dim);">Photoshop</span>
+          <span style="padding:6px 16px;border:1px solid var(--line-strong);font-size:11px;letter-spacing:0.15em;color:var(--text-dim);">Premiere</span>
+          <span style="padding:6px 16px;border:1px solid var(--line-strong);font-size:11px;letter-spacing:0.15em;color:var(--text-dim);">After Effects</span>
+          <span style="padding:6px 16px;border:1px solid var(--line-strong);font-size:11px;letter-spacing:0.15em;color:var(--text-dim);">DaVinci</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-timeline reveal">
+      <h3>经历 / EXPERIENCE</h3>
+      <div class="timeline-item">
+        <span class="timeline-year">2022 — 2026</span>
+        <div class="timeline-content">
+          <h4>山西传媒学院 · 山西电影学院</h4>
+          <p>影视摄影与制作（电影摄影方向）本科</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-year">2023 — 至今</span>
+        <div class="timeline-content">
+          <h4>自由影视创作者</h4>
+          <p>参与20+短片、短剧、广告项目，担任制片、美术、剧照等职务</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-year">2024 — 至今</span>
+        <div class="timeline-content">
+          <h4>AIGC影像创作</h4>
+          <p>AI短片、MV、宣传片、品宣视频全流程制作</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span>© 2026 LI SIYI</span>
+    <span>SHANXI · CHINA</span>
+  </footer>
+</div>
+
+<!-- ============================================================
+     获奖页 AWARDS
+     ============================================================ -->
+<div class="page" id="page-awards">
+  <div class="awards-page">
+    <div class="awards-header reveal">
+      <h1 class="awards-title split-text">获奖</h1>
+      <p class="awards-desc">作品曾入围多个国内外电影节，并获得多项奖项与荣誉。</p>
+    </div>
+
+    <div class="awards-columns">
+      <div class="awards-col reveal">
+        <h3>获奖 / WON</h3>
+        <div class="award-entry">
+          <div class="award-name">河东作者电影展 — 最佳视觉设计奖</div>
+          <div class="award-detail">提名"艺术探索"单元</div>
+          <span class="award-badge won">获奖</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">洛杉矶Index影展 — 最佳实验短片</div>
+          <div class="award-detail">同时获得最佳视觉设计奖</div>
+          <span class="award-badge won">获奖</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">高教影视学会年度优秀数媒作品</div>
+          <div class="award-detail">教师组，并入第四届全国高等院校影视作品联合展映</div>
+          <span class="award-badge won">获奖</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">"清风晋韵"微视频微短剧比赛 — 优秀奖</div>
+          <div class="award-detail">AI短片《山河淬廉》全片制作</div>
+          <span class="award-badge won">获奖</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">中国剪辑学会 — 荣誉创作之星</div>
+          <div class="award-detail">《我为城市代言：大学生AI短视频创意嘉年华》</div>
+          <span class="award-badge won">获奖</span>
+        </div>
+      </div>
+
+      <div class="awards-col reveal" style="transition-delay:0.15s;">
+        <h3>入围 / NOMINATED</h3>
+        <div class="award-entry">
+          <div class="award-name">平遥国际电影展 · 平遥一角</div>
+          <span class="award-badge">入围</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">86358贾家庄短片周</div>
+          <span class="award-badge">入围</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">英国Lift-off电影节</div>
+          <span class="award-badge">入围</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">第60届亚太影展</div>
+          <span class="award-badge">入围</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">FESTIVAL ANGAELICA · 科巴尼国际电影节</div>
+          <div class="award-detail">四分之一决赛</div>
+          <span class="award-badge">入围</span>
+        </div>
+        <div class="award-entry">
+          <div class="award-name">第四届青草天空电影展 / 胶东青年影像展 / 二十四格独立影展</div>
+          <span class="award-badge">入围</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="awards-certificates reveal">
+      <h3>证书 / CERTIFICATES</h3>
+      <div class="cert-grid">
+        <div class="cert-item img-placeholder"><span>证书</span></div>
+        <div class="cert-item img-placeholder"><span>证书</span></div>
+        <div class="cert-item img-placeholder"><span>证书</span></div>
+        <div class="cert-item img-placeholder"><span>证书</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span>© 2026 LI SIYI</span>
+    <span>SHANXI · CHINA</span>
+  </footer>
+</div>
+
+<!-- ============================================================
+     联系页 CONTACT
+     ============================================================ -->
+<div class="page" id="page-contact">
+  <div class="contact-page">
+    <h1 class="contact-title split-text">联系</h1>
+
+    <div class="contact-grid reveal">
+      <div class="contact-item">
+        <div class="label">微信 / WECHAT</div>
+        <div class="value">LI-SI-YII</div>
+        <div class="sub">添加请备注来意</div>
+      </div>
+      <div class="contact-item">
+        <div class="label">电话 / PHONE</div>
+        <div class="value">15035646608</div>
+        <div class="sub">工作日 9:00 — 21:00</div>
+      </div>
+      <div class="contact-item">
+        <div class="label">邮箱 / EMAIL</div>
+        <div class="value">746516546@qq.com</div>
+        <div class="sub">合作洽谈 / 工作机会</div>
+      </div>
+    </div>
+
+    <div class="contact-footer">
+      <span>BASED IN SHANXI · 接受异地工作</span>
+      <span>© 2026 LI SIYI · ALL RIGHTS RESERVED</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     作品探索页 EXPLORE（长滚动连贯浏览）
+     ============================================================ -->
+<div class="page" id="page-explore">
+  <div class="explore-page" id="explorePage">
+    <!-- 面包屑 -->
+    <div class="explore-breadcrumb">
+      <a href="#/works" data-hover>作品索引</a>
+      <span class="sep">/</span>
+      <span id="exploreBreadcrumbCat">制片作品</span>
+      <span class="sep">/</span>
+      <span class="current" id="exploreBreadcrumbCurrent">《大佬凯》</span>
+    </div>
+
+    <!-- 顶部分类索引 -->
+    <div class="explore-cat-bar" id="exploreCatBar">
+      <a href="#/explore/producing" class="active" data-cat="producing" data-hover>制片作品</a>
+      <a href="#/explore/art" data-cat="art" data-hover>美术作品</a>
+      <a href="#/explore/still" data-cat="still" data-hover>剧照作品</a>
+      <a href="#/explore/photo" data-cat="photo" data-hover>摄影作品</a>
+      <a href="#/explore/aigc" data-cat="aigc" data-hover>AIGC创作</a>
+    </div>
+
+    <!-- 左侧作品导航 -->
+    <div class="explore-side-nav" id="exploreSideNav">
+      <div class="cat-label" id="exploreCatLabel">制片作品</div>
+      <div class="side-nav-cat" data-cat="producing"><!-- JS预渲染 --></div>
+      <div class="side-nav-cat" data-cat="art" style="display:none"><!-- JS预渲染 --></div>
+      <div class="side-nav-cat" data-cat="still" style="display:none"><!-- JS预渲染 --></div>
+      <div class="side-nav-cat" data-cat="photo" style="display:none"><!-- JS预渲染 --></div>
+      <div class="side-nav-cat" data-cat="aigc" style="display:none"><!-- JS预渲染 --></div>
+    </div>
+
+    <!-- 滚动提示 -->
+    <div class="explore-scroll-hint">
+      <span>SCROLL</span>
+      <div class="line"></div>
+    </div>
+
+    <!-- 作品sections容器（五个分类独立区块） -->
+    <div id="exploreSections">
+      <div class="explore-sections-cat" data-cat="producing"><!-- JS预渲染 --></div>
+      <div class="explore-sections-cat" data-cat="art" style="display:none"><!-- JS预渲染 --></div>
+      <div class="explore-sections-cat" data-cat="still" style="display:none"><!-- JS预渲染 --></div>
+      <div class="explore-sections-cat" data-cat="photo" style="display:none"><!-- JS预渲染 --></div>
+      <div class="explore-sections-cat" data-cat="aigc" style="display:none"><!-- JS预渲染 --></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-wrapper -->
+
+<!-- 视频放大弹窗 -->
+<div class="video-modal" id="videoModal">
+  <div class="video-modal-mask"></div>
+  <div class="video-modal-box">
+    <button class="video-modal-close" id="videoModalClose" title="返回">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+    <div class="video-modal-player">
+      <video id="videoModalVideo" controls playsinline webkit-playsinline controlslist="nodownload nofullscreen noremoteplayback" oncontextmenu="return false;"></video>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   作品数据（图片待补充，先用占位）
+   ============================================================ */
+const works = [
+  // 制片作品
+  { id: 0, title: '大佬凯', category: 'producing', catLabel: '制片', role: '制片主任 · 全流程制片', year: '2025', duration: '项目周期1个月', desc: '鄂尔多斯沙漠异地摄制，全员异地执行挑战连续5天生存。鄂尔多斯沙漠恶劣天气，榆次—内蒙独立自驾，加损耗共花费4w。创意三辆车连锁拖车，从0开始沙漠置景。', images: ['assets/images/dalaokai_1.jpg', 'assets/images/dalaokai_2.jpg', 'assets/images/dalaokai_3.jpg', 'assets/images/dalaokai_4.jpg', 'assets/images/dalaokai_5.jpg', 'assets/images/dalaokai_6.jpg', 'assets/images/dalaokai_7.jpg', 'assets/images/dalaokai_8.jpg', 'assets/images/dalaokai_9.jpg'] },
+  { id: 1, title: '我没有热爱这里', category: 'producing', catLabel: '制片', role: '制片人 · 全流程制片', year: '2025', duration: '项目周期5个月', desc: '工作人员40+，朝鲜族团队协作，实现仿警局实景搭建。完整工业化流程执行，从前期筹备到后期交付全流程把控。', images: ['assets/images/reai_1.jpg', 'assets/images/reai_2.jpg', 'assets/images/reai_3.jpg', 'assets/images/reai_4.jpg', 'assets/images/reai_5.jpg', 'assets/images/reai_6.jpg', 'assets/images/reai_7.jpg', 'assets/images/reai_8.jpg', 'assets/images/reai_9.jpg', 'assets/images/reai_10.jpg'] },
+  { id: 2, title: 'Goodbye Cruel World', category: 'producing', catLabel: '制片', role: '制片人 · 全流程制片', year: '2024', duration: '单一车拍场景', desc: '单一车拍场景创意沟通，以极简场景完成完整叙事，探索空间限制下的影像表达可能性。', images: ['assets/images/goodbye_1.jpg', 'assets/images/goodbye_2.jpg', 'assets/images/goodbye_3.jpg', 'assets/images/goodbye_4.jpg'] },
+  { id: 3, title: '针与线', category: 'producing', catLabel: '制片', role: '制片人 · 全流程制片', year: '2024', duration: '项目周期2个月', desc: '单个场景完成所有拍摄，CULT类型孩童演员沟通，废墟拍摄安全与许可，高性价比置景。', images: ['assets/images/zhenyuxian_1.jpg', 'assets/images/zhenyuxian_2.jpg', 'assets/images/zhenyuxian_3.jpg', 'assets/images/zhenyuxian_4.jpg', 'assets/images/zhenyuxian_5.jpg', 'assets/images/zhenyuxian_6.jpg', 'assets/images/zhenyuxian_7.jpg', 'assets/images/zhenyuxian_8.jpg', 'assets/images/zhenyuxian_9.jpg', 'assets/images/zhenyuxian_10.jpg'] },
+  { id: 4, title: '走水', category: 'producing', catLabel: '制片', role: '执行制片', year: '2025', duration: '两地区拍摄', desc: '异地制片陌生团队顺利推进工作，两地区拍摄协调，跨区域资源整合与现场执行。', images: ['assets/images/zoushui_1.jpg', 'assets/images/zoushui_2.jpg', 'assets/images/zoushui_3.jpg', 'assets/images/zoushui_4.jpg', 'assets/images/zoushui_5.jpg', 'assets/images/zoushui_6.jpg', 'assets/images/zoushui_7.jpg', 'assets/images/zoushui_8.jpg', 'assets/images/zoushui_9.jpg'] },
+  { id: 5, title: '愿你在此', category: 'producing', catLabel: '制片', role: '制片人', year: '2024', duration: '工作人员50+', desc: '丧尸题材，废墟选景，大型群演调度，类型片工业化制作流程。', images: ['assets/images/yuanni_1.jpg', 'assets/images/yuanni_2.jpg', 'assets/images/yuanni_3.jpg', 'assets/images/yuanni_4.jpg', 'assets/images/yuanni_5.jpg', 'assets/images/yuanni_6.jpg', 'assets/images/yuanni_7.jpg', 'assets/images/yuanni_8.jpg'] },
+  { id: 6, title: '四月', category: 'producing', catLabel: '制片', role: '现场制片 · 生活制片', year: '2025', duration: '伦敦电影学院毕设', desc: '伦敦电影学院毕设项目，国际化团队协作，现场执行与生活保障双线统筹。', images: ['assets/images/siyue_1.jpg', 'assets/images/siyue_2.jpg', 'assets/images/siyue_3.jpg', 'assets/images/siyue_4.jpg', 'assets/images/siyue_5.jpg'] },
+  { id: 7, title: '虎皮', category: 'producing', catLabel: '制片', role: '制片主任 · 美术师', year: '2025', duration: '临期接手极限创作', desc: '临期接手极限创作，同时担任制片主任与美术师，6小时极限旧房置景，双重身份高效推进。', images: ['https://aka.doubaocdn.com/s/6DUzbkooay', 'https://aka.doubaocdn.com/s/VKp2gKp3tR', 'https://aka.doubaocdn.com/s/YTmmjsTtUL', 'https://aka.doubaocdn.com/s/s5UQHfQwYI', 'https://aka.doubaocdn.com/s/NSrUJ02Vuk', 'https://aka.doubaocdn.com/s/ZayeowJ3oV', 'https://aka.doubaocdn.com/s/N4Rh6VoCor', 'https://aka.doubaocdn.com/s/E9dULUNMOA'] },
+  { id: 8, title: '笨头', category: 'producing', catLabel: '制片', role: '制片主任', year: '2026', duration: '煤矿厂与冰湖拍摄', desc: '山西煤矿厂与冰湖实景拍摄，极端工业环境与自然场景双重挑战，大型灯光设备调度。', images: ['https://aka.doubaocdn.com/s/ElKFovcGVf', 'https://aka.doubaocdn.com/s/CuTNVxNnP3', 'https://aka.doubaocdn.com/s/BVJOoKqFeG', 'https://aka.doubaocdn.com/s/e0T9t6vwfU', 'https://aka.doubaocdn.com/s/aZ2g5Pc6nW'] },
+  { id: 9, title: '小沙弥', category: 'producing', catLabel: '制片', role: '总制片', year: '2026', duration: '古建拍摄 · 个人毕设', desc: '个人毕业作品，古建实景拍摄，完整项目从开发到交付全流程把控，宗教题材敏感协调。', images: ['https://aka.doubaocdn.com/s/Mcdgw9JYgS', 'https://aka.doubaocdn.com/s/Y9oWBWLozN', 'https://aka.doubaocdn.com/s/UQaFyzsCKT', 'https://aka.doubaocdn.com/s/bwZIGfcJ89', 'https://aka.doubaocdn.com/s/S63B2u2bsQ', 'https://aka.doubaocdn.com/s/RDRJ2koH5E', 'https://aka.doubaocdn.com/s/AspkFvG4h7', 'https://aka.doubaocdn.com/s/tDskBsvmZL', 'https://aka.doubaocdn.com/s/1cvpkjjoNq'] },
+  // 美术作品
+  { id: 10, title: '愿你在此 — 特效化妆', category: 'art', catLabel: '美术', role: '化妆师 · 简易特效化妆', year: '2024', duration: '丧尸题材', desc: '丧尸题材简易特效化妆，伤口、腐烂效果制作，多位群演快速上妆与现场补妆。', images: ['assets/images/texiaohua_1.jpg', 'assets/images/texiaohua_2.jpg', 'assets/images/texiaohua_3.jpg', 'assets/images/texiaohua_4.jpg', 'assets/images/texiaohua_5.jpg', 'assets/images/texiaohua_6.jpg', 'assets/images/texiaohua_7.jpg', 'assets/images/texiaohua_8.jpg'] },
+  { id: 11, title: '枪神之死', category: 'art', catLabel: '美术', role: '执行美术', year: '2024', duration: '雪季极寒挑战', desc: '雪季芦芽山顶极寒挑战，少数民族鄂伦春族题材，简单爆炸效果、血液、活体动物与道具食物、篝火（已许可）制作。', images: ['assets/images/qiangshen_1.jpg', 'assets/images/qiangshen_2.jpg', 'assets/images/qiangshen_3.jpg', 'assets/images/qiangshen_4.jpg', 'assets/images/qiangshen_5.jpg', 'assets/images/qiangshen_6.jpg', 'assets/images/qiangshen_7.jpg', 'assets/images/qiangshen_8.jpg', 'assets/images/qiangshen_9.jpg', 'assets/images/qiangshen_10.jpg', 'assets/images/qiangshen_11.jpg', 'assets/images/qiangshen_12.jpg'] },
+  { id: 12, title: '虎皮 — 置景', category: 'art', catLabel: '美术', role: '美术师 · 6小时极限置景', year: '2025', duration: '旧房场景', desc: '旧房场景6小时极限置景，从空房到生活化场景完整呈现，年代感道具陈设与氛围营造。', images: ['https://aka.doubaocdn.com/s/6DUzbkooay', 'https://aka.doubaocdn.com/s/VKp2gKp3tR', 'https://aka.doubaocdn.com/s/YTmmjsTtUL', 'https://aka.doubaocdn.com/s/s5UQHfQwYI', 'https://aka.doubaocdn.com/s/NSrUJ02Vuk', 'https://aka.doubaocdn.com/s/ZayeowJ3oV', 'https://aka.doubaocdn.com/s/N4Rh6VoCor', 'https://aka.doubaocdn.com/s/E9dULUNMOA', 'https://aka.doubaocdn.com/s/4mzxdD4MU9'] },
+  // 剧照作品
+  { id: 13, title: '黄尘白日', category: 'still', catLabel: '剧照', role: '剧照师', year: '2024', duration: '项目周期3个月', desc: '工作人员40+，高强度工作最早起最晚睡，每日出片。南京传媒学院20级毕设跟组剧照。', images: ['https://aka.doubaocdn.com/s/3eplhIVH1z', 'https://aka.doubaocdn.com/s/SUc8y8milM', 'https://aka.doubaocdn.com/s/vhfwpBbpRo', 'https://aka.doubaocdn.com/s/8iUZCEZeuk'] },
+  { id: 14, title: '鱼潮', category: 'still', catLabel: '剧照', role: '剧照师', year: '2024', duration: '项目周期3个月', desc: '上海电影学院20级毕业联合设计，工作人员40+，高强度跟组每日出片。', images: ['https://aka.doubaocdn.com/s/OHVWt1eGVl', 'https://aka.doubaocdn.com/s/iE7WZROOmL'] },
+  { id: 15, title: '予家千般暖 换我一身寒', category: 'still', catLabel: '剧照', role: '剧照师', year: '2026', duration: '红果爆款千万短剧', desc: '红果爆款千万级短剧剧照，高强度工作全组最早起最晚睡，每日出片，商业短剧工业化流程。', images: ['https://aka.doubaocdn.com/s/ZBkmnz3vqj', 'https://aka.doubaocdn.com/s/p98dUScOpK', 'https://aka.doubaocdn.com/s/fan42aQ77B', 'https://aka.doubaocdn.com/s/7TyxA7SfXi', 'https://aka.doubaocdn.com/s/DjNsmkzgPY', 'https://aka.doubaocdn.com/s/lkGKGaVl6T', 'https://aka.doubaocdn.com/s/TJ8RN2Xmel', 'https://aka.doubaocdn.com/s/Bway21BPaO', 'https://aka.doubaocdn.com/s/3c3ElMBWm3', 'https://aka.doubaocdn.com/s/37y6qDLn2K'] },
+  // 摄影作品
+  { id: 16, title: '课上香水广告', category: 'photo', catLabel: '摄影', role: '摄影 · 极限创作', year: '2025', duration: '课上两小时', desc: '课上两小时极限创作广告作品，包含景观搭建，产品摄影、氛围布光与剪辑，浪漫主义视觉风格呈现。', images: ['https://aka.doubaocdn.com/s/bFVMBX6CjY', 'https://aka.doubaocdn.com/s/JkTehtdnQO', 'https://aka.doubaocdn.com/s/TtGEExyDzu', 'https://aka.doubaocdn.com/s/Sb86AY7Ubx', 'https://aka.doubaocdn.com/s/qtSgxeJA1G', 'https://aka.doubaocdn.com/s/G3iU2JSduS'] },
+  { id: 17, title: '摇摆苏丹', category: 'photo', catLabel: '摄影', role: '摄影 · 剧情短片', year: '2023', duration: '剧情短片', desc: '剧情短片摄影，室内夜景与生活场景光影设计，现实主义影像风格。', images: ['assets/images/yaobaisudan_1.png'] },
+  // AIGC作品
+  { id: 18, title: '自制MV', category: 'aigc', catLabel: 'AIGC', role: '全流程AI影像创作', year: '2025', duration: '音乐录影带', desc: 'AI生成音乐录影带，冷蓝色调都市情感叙事，完整分镜设计与AI影像生成全流程。', images: ['https://aka.doubaocdn.com/s/FOFl7MR3K1', 'https://aka.doubaocdn.com/s/CjsXDktHXF', 'https://aka.doubaocdn.com/s/OdJQHDf9is', 'https://aka.doubaocdn.com/s/N2czdLNVx0', 'https://aka.doubaocdn.com/s/VhHRuQCgd6', 'https://aka.doubaocdn.com/s/5LeZGL22Gy', 'https://aka.doubaocdn.com/s/9Vf7Rl52hm', 'https://aka.doubaocdn.com/s/5fSWsOdaMX', 'https://aka.doubaocdn.com/s/VWmdvLYU0g', 'https://aka.doubaocdn.com/s/5N5diuYF7j', 'https://aka.doubaocdn.com/s/nWTkJ1wB7j', 'https://aka.doubaocdn.com/s/KiHeED1zu3', 'https://aka.doubaocdn.com/s/8gTGai5OF7', 'https://aka.doubaocdn.com/s/QV8gs08qGl', 'https://aka.doubaocdn.com/s/VGMtWq5HrM', 'https://aka.doubaocdn.com/s/0EQVTvddDf', 'https://aka.doubaocdn.com/s/IUf7DTdZPD', 'https://aka.doubaocdn.com/s/H0aYdPuDkC', 'https://aka.doubaocdn.com/s/e992iHg0VV', 'https://aka.doubaocdn.com/s/wqLh7yvasB', 'https://aka.doubaocdn.com/s/C1cUOK5bZH', 'https://aka.doubaocdn.com/s/86B3POmRbY', 'https://aka.doubaocdn.com/s/m9t2q5yVno', 'https://aka.doubaocdn.com/s/DpuhHP7QYl'], video: 'https://aka.doubaocdn.com/s/gKsleVj1G2' },
+  { id: 21, title: '清风晋韵 廉政宣传片', category: 'aigc', catLabel: 'AIGC', role: 'AI短片全片制作', year: '2025', duration: '廉政文化', desc: '古县城、雁门关、廉政文化主题AI宣传片，历史场景AI重建与文化叙事结合。', images: ['https://aka.doubaocdn.com/s/rsSuLIocm3', 'https://aka.doubaocdn.com/s/B5SafD6qi3', 'https://aka.doubaocdn.com/s/A2DY3VoIN3', 'https://aka.doubaocdn.com/s/VaC7VXdee4', 'https://aka.doubaocdn.com/s/9JvObWqZ9B', 'https://aka.doubaocdn.com/s/kPyLZaoVN0', 'https://aka.doubaocdn.com/s/32tdo8L320', 'https://aka.doubaocdn.com/s/rnxAeJc2CF', 'https://aka.doubaocdn.com/s/kmrttUOHZW', 'https://aka.doubaocdn.com/s/QMyJw3X42A', 'https://aka.doubaocdn.com/s/VF2JuTd0wg', 'https://aka.doubaocdn.com/s/svA02Hm2F9', 'https://aka.doubaocdn.com/s/Unih9bFFW0', 'https://aka.doubaocdn.com/s/1Cas6FQS4h', 'https://aka.doubaocdn.com/s/6xbV42URqK', 'https://aka.doubaocdn.com/s/yx5aYx9Vkw', 'https://aka.doubaocdn.com/s/xbyuk5amN9', 'https://aka.doubaocdn.com/s/dR2FJNrg85', 'https://aka.doubaocdn.com/s/ma57GV5u4U', 'https://aka.doubaocdn.com/s/ci16VlHDhD', 'https://aka.doubaocdn.com/s/ZrPv375xNx', 'https://aka.doubaocdn.com/s/A0M3waN4an', 'https://aka.doubaocdn.com/s/jTOOeipSRm', 'https://aka.doubaocdn.com/s/j1syQncwEi', 'https://aka.doubaocdn.com/s/Ym4Q3ff6GO', 'https://aka.doubaocdn.com/s/Pr8tN8mury', 'https://aka.doubaocdn.com/s/gu0y2ANjqx'], video: 'assets/videos/lianzheng.mp4' },
+  { id: 22, title: '建行品宣视频', category: 'aigc', catLabel: 'AIGC', role: 'AI品宣视频制作', year: '2026', duration: '金融行业', desc: '中国建设银行AIGC品宣视频，金融行业AI影像创作，专业场景与人物AI生成。', images: ['assets/images/pinxuan_1.png', 'assets/images/pinxuan_2.png', 'assets/images/pinxuan_3.png', 'assets/images/pinxuan_4.png', 'assets/images/pinxuan_5.png', 'assets/images/pinxuan_6.png', 'assets/images/pinxuan_7.png', 'assets/images/pinxuan_8.png', 'assets/images/pinxuan_9.png', 'assets/images/pinxuan_10.png', 'assets/images/pinxuan_11.png', 'assets/images/pinxuan_12.png'], video: 'assets/videos/pinxuan.mp4' },
+  { id: 23, title: '概念demo', category: 'aigc', catLabel: 'AIGC', role: 'AI概念影像创作', year: '2025', duration: '实验影像', desc: '苔藓与赤脚的极简概念影像，探索AI生成影像的诗意表达与感官体验。', images: [], video: 'https://aka.doubaocdn.com/s/Ku3bUWyXRH' },
+  { id: 24, title: '自制漫剧demo', category: 'aigc', catLabel: 'AIGC', role: 'AI概念短片', year: '2026', duration: '东方美学', desc: '敦煌壁画风格古风AI影像，飞天、古寺、佛像等东方美学元素AI创作。', images: ['https://aka.doubaocdn.com/s/eeHbI1coeM', 'https://aka.doubaocdn.com/s/O7CxKGTybs', 'https://aka.doubaocdn.com/s/3C60dbj7c3', 'https://aka.doubaocdn.com/s/wMmCwNIYLH', 'https://aka.doubaocdn.com/s/E1aXPk0TZO', 'https://aka.doubaocdn.com/s/XSKcD1hfZ7', 'https://aka.doubaocdn.com/s/0qe1VC6Tb0', 'https://aka.doubaocdn.com/s/vGy8rqMzir', 'https://aka.doubaocdn.com/s/ApEF7WsQDZ'], video: 'assets/videos/manjudemo.mp4' },
+  { id: 25, title: '横屏仿真人漫剧样片', category: 'aigc', catLabel: 'AIGC', role: 'AI剧情影像', year: '2026', duration: '温情叙事', desc: '柯基与人的秋日温情剧情AI短片，探索AI生成影像的叙事能力与情感表达。', images: ['assets/images/hengping_1.png', 'assets/images/hengping_2.png', 'assets/images/hengping_3.png', 'assets/images/hengping_4.png', 'assets/images/hengping_5.png', 'assets/images/hengping_6.png', 'assets/images/hengping_7.png', 'assets/images/hengping_8.png', 'assets/images/hengping_9.png'], video: 'https://aka.doubaocdn.com/s/BzPtcAkyUy' },
+  { id: 26, title: '部分竖屏样片', category: 'aigc', catLabel: 'AIGC', role: 'AI影像实验', year: '2026', duration: '多题材探索', desc: '古风、民国、战争等多题材AI影像实验，探索不同风格下的AI生成质量与叙事可能。', images: [], videos: ['assets/videos/shuping_1.mp4', 'assets/videos/shuping_2.mp4', 'assets/videos/shuping_3.mp4', 'assets/videos/shuping_4.mp4'] }
+];
+
+/* ============================================================
+   自定义光标
+   ============================================================ */
+const cursorDot = document.getElementById('cursorDot');
+const cursorRing = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorDot.style.left = mouseX + 'px';
+  cursorDot.style.top = mouseY + 'px';
+});
+
+function animateRing() {
+  ringX += (mouseX - ringX) * 0.15;
+  ringY += (mouseY - ringY) * 0.15;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+// hover效果
+document.addEventListener('mouseover', (e) => {
+  if (e.target.closest('[data-hover]') || e.target.closest('a') || e.target.closest('button')) {
+    cursorDot.classList.add('hover');
+    cursorRing.classList.add('hover');
+  }
+});
+
+document.addEventListener('mouseout', (e) => {
+  if (e.target.closest('[data-hover]') || e.target.closest('a') || e.target.closest('button')) {
+    cursorDot.classList.remove('hover');
+    cursorRing.classList.remove('hover');
+  }
+});
+
+/* ============================================================
+   导航（电子书书签：hover展开 + 移动端）
+   ============================================================ */
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.getElementById('mobileNav');
+const sideNav = document.getElementById('sideNav');
+
+// 桌面端：hover自动展开书签导航
+let navHoverTimer = null;
+sideNav.addEventListener('mouseenter', () => {
+  if (window.innerWidth <= 768) return; // 移动端不触发
+  clearTimeout(navHoverTimer);
+  sideNav.classList.add('open');
+  document.body.classList.add('nav-open');
+});
+
+sideNav.addEventListener('mouseleave', () => {
+  if (window.innerWidth <= 768) return;
+  // 延迟收起，给用户移动到菜单的时间
+  navHoverTimer = setTimeout(() => {
+    sideNav.classList.remove('open');
+    document.body.classList.remove('nav-open');
+  }, 200);
+});
+
+// 移动端菜单
+mobileMenuBtn.addEventListener('click', () => {
+  mobileMenuBtn.classList.toggle('open');
+  sideNav.classList.toggle('open');
+});
+
+document.querySelectorAll('[data-mobile-nav], .nav-menu a, .side-nav .logo').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenuBtn.classList.remove('open');
+    sideNav.classList.remove('open');
+  });
+});
+
+/* ============================================================
+   跟随光标视差画廊
+   ============================================================ */
+function initGalleryParallax() {
+  const viewport = document.getElementById('galleryViewport');
+  const track = document.getElementById('galleryTrack');
+  const counter = document.getElementById('galleryCounter');
+  if (!viewport || !track) return;
+
+  const items = track.querySelectorAll('.gallery-item');
+  const total = items.length;
+  if (counter) counter.textContent = '01 / ' + String(total).padStart(2, '0');
+
+  // 计算可移动范围
+  function getRange() {
+    const trackWidth = track.scrollWidth;
+    const viewportWidth = viewport.clientWidth;
+    return Math.max(0, trackWidth - viewportWidth);
+  }
+
+  let targetX = 0;
+  let currentX = 0;
+  let rafId = null;
+
+  // 鼠标移动时计算目标位置
+  viewport.addEventListener('mousemove', (e) => {
+    const rect = viewport.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const percent = mouseX / rect.width; // 0 ~ 1
+    const range = getRange();
+    // 左边留60px padding，所以起始位置是60
+    targetX = -(percent * range);
+  });
+
+  // 触摸设备：触摸移动
+  viewport.addEventListener('touchmove', (e) => {
+    const rect = viewport.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - rect.left;
+    const percent = touchX / rect.width;
+    const range = getRange();
+    targetX = -(percent * range);
+  }, { passive: true });
+
+  // 平滑动画
+  function animate() {
+    currentX += (targetX - currentX) * 0.08;
+    track.style.transform = `translateY(-50%) translateX(${currentX}px)`;
+
+    // 更新计数器（基于当前位置估算当前图片）
+    if (counter && total > 0) {
+      const range = getRange();
+      const percent = range > 0 ? Math.abs(currentX) / range : 0;
+      const idx = Math.min(total, Math.max(1, Math.round(percent * (total - 1)) + 1));
+      counter.textContent = String(idx).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+  animate();
+
+  // 清理
+  const oldCleanup = window._galleryCleanup;
+  window._galleryCleanup = () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    if (oldCleanup) oldCleanup();
+  };
+}
+
+/* ============================================================
+   首页贴纸3D视差
+   ============================================================ */
+function initStickerParallax() {
+  const container = document.getElementById('heroStickers');
+  if (!container) return;
+  const stickers = container.querySelectorAll('.sticker');
+  if (stickers.length === 0) return;
+
+  // 入场动画和持续晃动由CSS控制，这里只做鼠标视差
+  let targetX = 0, targetY = 0;
+  let currentX = 0, currentY = 0;
+  let rafId = null;
+  let parallaxActive = false;
+
+  setTimeout(() => { parallaxActive = true; }, 1000);
+
+  document.addEventListener('mousemove', (e) => {
+    targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+    targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  function animate() {
+    currentX += (targetX - currentX) * 0.06;
+    currentY += (targetY - currentY) * 0.06;
+
+    if (parallaxActive) {
+      stickers.forEach(sticker => {
+        const depth = parseFloat(sticker.dataset.depth) || 0.2;
+        const px = currentX * depth * 15;
+        const py = currentY * depth * 15;
+        sticker.style.marginLeft = px + 'px';
+        sticker.style.marginTop = py + 'px';
+      });
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+/* ============================================================
+   萌系音效系统
+   ============================================================ */
+const SoundSystem = {
+  ctx: null,
+  enabled: true,
+  initialized: false,
+
+  init() {
+    if (this.initialized) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.initialized = true;
+    } catch (e) {
+      console.log('Web Audio not supported');
+    }
+  },
+
+  // 萌系"叮"声 - 导航悬停
+  playDing() {
+    if (!this.enabled || !this.ctx) return;
+    const ctx = this.ctx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.05);
+
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.15);
+  },
+
+  // 萌系"啵"声 - 点击
+  playPop() {
+    if (!this.enabled || !this.ctx) return;
+    const ctx = this.ctx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.2);
+  },
+
+  // 萌系上升音阶 - 页面切换
+  playSparkle() {
+    if (!this.enabled || !this.ctx) return;
+    const ctx = this.ctx;
+    const notes = [880, 1100, 1320]; // 可爱的三音上行
+
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const startTime = ctx.currentTime + i * 0.06;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.08, startTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.18);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.18);
+    });
+  },
+
+  // 首页入场音效 - 可爱的叮咚叮咚
+  playEnter() {
+    if (!this.enabled || !this.ctx) return;
+    const ctx = this.ctx;
+    const notes = [
+      { freq: 784, time: 0 },    // G5
+      { freq: 988, time: 0.1 },  // B5
+      { freq: 1175, time: 0.2 }, // D6
+      { freq: 1568, time: 0.35 } // G6 高音收尾
+    ];
+
+    notes.forEach(note => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const startTime = ctx.currentTime + note.time;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(note.freq, startTime);
+      osc.frequency.exponentialRampToValueAtTime(note.freq * 1.02, startTime + 0.15);
+
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.1, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    });
+  },
+
+  toggle() {
+    this.enabled = !this.enabled;
+    if (this.enabled && !this.initialized) {
+      this.init();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+    return this.enabled;
+  }
+};
+
+function initSoundSystem() {
+  const toggle = document.getElementById('soundToggle');
+  if (!toggle) return;
+
+  // 页面加载后默认开启，监听第一次交互激活音频上下文
+  const activateAudio = () => {
+    if (SoundSystem.enabled && !SoundSystem.initialized) {
+      SoundSystem.init();
+    }
+    if (SoundSystem.ctx && SoundSystem.ctx.state === 'suspended') {
+      SoundSystem.ctx.resume();
+    }
+    // 首次交互后如果在首页，播放入场音
+    setTimeout(() => {
+      const hash = location.hash.slice(2) || 'home';
+      if (hash === 'home' || hash === '') {
+        SoundSystem.playEnter();
+      }
+    }, 100);
+    document.removeEventListener('click', activateAudio);
+    document.removeEventListener('touchstart', activateAudio);
+  };
+  document.addEventListener('click', activateAudio);
+  document.addEventListener('touchstart', activateAudio);
+
+  toggle.addEventListener('click', () => {
+    const enabled = SoundSystem.toggle();
+    toggle.classList.toggle('active', enabled);
+    toggle.querySelector('.sound-label').textContent = enabled ? '音效 开' : '音效 关';
+    if (enabled) SoundSystem.playPop();
+  });
+
+  // 导航悬停音效
+  document.addEventListener('mouseover', (e) => {
+    if (e.target.closest('a, button, .nav-art-item, .work-nav-item, .explore-cat-bar a')) {
+      SoundSystem.playDing();
+    }
+  });
+
+  // 点击音效
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, .nav-art-item, .work-card')) {
+      SoundSystem.playPop();
+    }
+  });
+}
+
+/* ============================================================
+   首页右侧艺术化导览
+   ============================================================ */
+function initHeroNav() {
+  const items = document.querySelectorAll('.nav-art-item');
+  if (items.length === 0) return;
+
+  // 点击跳转
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      const target = item.dataset.target;
+      if (target) navigateTo(target);
+    });
+  });
+}
+
+/* ============================================================
+   文字拆分动画
+   ============================================================ */
+function splitText(el) {
+  const lines = el.querySelectorAll('.line');
+  if (lines.length > 0) {
+    lines.forEach((line, lineIdx) => {
+      const text = line.textContent;
+      line.textContent = '';
+      [...text].forEach((char, i) => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.style.animationDelay = (lineIdx * 0.35 + i * 0.06) + 's';
+        line.appendChild(span);
+      });
+    });
+  } else {
+    const text = el.textContent;
+    el.textContent = '';
+    [...text].forEach((char, i) => {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = char === ' ' ? '\u00A0' : char;
+      span.style.animationDelay = (i * 0.05) + 's';
+      el.appendChild(span);
+    });
+  }
+}
+
+/* ============================================================
+   滚动渐入
+   ============================================================ */
+let revealObserver;
+function initReveal() {
+  revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.page.active .reveal').forEach(el => revealObserver.observe(el));
+}
+
+/* ============================================================
+   首页精选作品列表
+   ============================================================ */
+function renderFeatured() {
+  const list = document.getElementById('featuredList');
+  if (!list) return;
+  const featured = works.slice(0, 6);
+  list.innerHTML = featured.map((w, i) => `
+    <li class="featured-item reveal" data-work-id="${w.id}" data-hover>
+      <span class="item-num">0${i + 1}</span>
+      <span class="item-title">${w.title}</span>
+      <span class="item-cat">${w.catLabel}</span>
+      <span class="item-year">${w.year}</span>
+    </li>
+  `).join('');
+
+  // 点击跳转探索模式并定位到对应作品
+  list.querySelectorAll('.featured-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const workId = parseInt(item.dataset.workId);
+      const work = works.find(w => w.id === workId);
+      if (!work) return;
+      window.exploreTargetId = workId;
+      navigateTo('#/explore/' + work.category);
+    });
+  });
+
+  // hover预览图跟随
+  const preview = document.getElementById('featuredPreview');
+  list.querySelectorAll('.featured-item').forEach(item => {
+    const work = works.find(w => w.id === parseInt(item.dataset.workId));
+    const previewImg = work && work.images && work.images.length > 0 ? work.images[0] : null;
+
+    item.addEventListener('mouseenter', () => {
+      preview.classList.add('visible');
+      if (previewImg) {
+        preview.style.backgroundImage = `url('${previewImg}')`;
+        preview.style.backgroundSize = 'cover';
+        preview.style.backgroundPosition = 'center';
+        preview.innerHTML = '';
+      }
+    });
+    item.addEventListener('mouseleave', () => {
+      preview.classList.remove('visible');
+    });
+    item.addEventListener('mousemove', (e) => {
+      preview.style.left = e.clientX + 'px';
+      preview.style.top = e.clientY + 'px';
+    });
+  });
+}
+
+/* ============================================================
+   作品列表页
+   ============================================================ */
+let currentFilter = 'producing';
+
+function renderWorks() {
+  const grid = document.getElementById('worksGrid');
+  const filtered = currentFilter === 'all' ? works : works.filter(w => w.category === currentFilter);
+
+  // 更新页面标题
+  const titleEl = document.getElementById('worksPageTitle');
+  if (titleEl) {
+    if (currentFilter === 'all') {
+      titleEl.textContent = '作品索引';
+    } else if (catLabels && catLabels[currentFilter]) {
+      titleEl.textContent = catLabels[currentFilter];
+    }
+  }
+
+  grid.innerHTML = filtered.map((w, i) => {
+    const thumbImg = w.images && w.images.length > 0 ? w.images[0] : null;
+    const thumbHtml = thumbImg
+      ? `<div class="card-thumb-img" style="background-image:url('${thumbImg}');background-size:cover;background-position:center;"></div>`
+      : `<div class="img-placeholder"><span>${w.catLabel}作品</span></div>`;
+    return `
+    <div class="work-card" data-work-id="${w.id}" style="animation-delay:${i * 0.05}s" data-hover>
+      <div class="card-thumb">
+        ${thumbHtml}
+      </div>
+      <div class="card-meta">
+        <span class="card-cat">${w.catLabel}</span>
+        <span class="card-year">${w.year}</span>
+      </div>
+      <div class="card-title">${w.title}</div>
+      <div class="card-role">${w.role}</div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.work-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const workId = parseInt(card.dataset.workId);
+      const work = works.find(w => w.id === workId);
+      if (!work) return;
+      // 记录要定位的作品，进入探索页后滚动到对应位置
+      window.exploreTargetId = workId;
+      navigateTo('#/explore/' + work.category);
+    });
+  });
+}
+
+// 全局筛选函数（供左侧二级菜单调用）
+window.filterWorksByCat = function(cat) {
+  currentFilter = cat;
+  // 更新页面标题
+  const titleEl = document.getElementById('worksPageTitle');
+  if (titleEl && catLabels && catLabels[cat]) {
+    titleEl.textContent = catLabels[cat];
+  }
+  // 更新筛选按钮状态
+  document.querySelectorAll('#worksFilters button').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === cat);
+  });
+  renderWorks();
+};
+
+// 筛选按钮
+document.querySelectorAll('#worksFilters button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#worksFilters button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    // 更新页面标题
+    const titleEl = document.getElementById('worksPageTitle');
+    if (titleEl && catLabels && catLabels[currentFilter]) {
+      titleEl.textContent = catLabels[currentFilter];
+    }
+    renderWorks();
+  });
+});
+
+/* ============================================================
+   作品详情页
+   ============================================================ */
+function renderDetail(id) {
+  const work = works.find(w => w.id === parseInt(id));
+  if (!work) { navigateTo('#/works'); return; }
+
+  document.getElementById('detailTitle').textContent = work.title;
+
+  document.getElementById('detailInfo').innerHTML = `
+    <div class="detail-info-item">
+      <div class="label">角色 / ROLE</div>
+      <div class="value">${work.role}</div>
+    </div>
+    <div class="detail-info-item">
+      <div class="label">类型 / CATEGORY</div>
+      <div class="value">${work.catLabel}</div>
+    </div>
+    <div class="detail-info-item">
+      <div class="label">年份 / YEAR</div>
+      <div class="value">${work.year}</div>
+    </div>
+    <div class="detail-info-item">
+      <div class="label">周期 / DURATION</div>
+      <div class="value">${work.duration}</div>
+    </div>
+  `;
+
+  // 跟随光标视差画廊（优先用作品真实图片，没有则用占位符）
+  const workImages = work.images && work.images.length > 0 ? work.images : null;
+  const placeholderLabels = ['主视觉图', '剧照 01', '剧照 02', '剧照 03', '剧照 04', '剧照 05'];
+  const galleryCount = workImages ? workImages.length : 6;
+
+  let galleryItemsHtml = '';
+  for (let i = 0; i < galleryCount; i++) {
+    if (workImages) {
+      galleryItemsHtml += `<div class="gallery-item" style="background-image:url('${workImages[i]}');background-size:cover;background-position:center;"></div>`;
+    } else {
+      galleryItemsHtml += `<div class="gallery-item img-placeholder"><span>${placeholderLabels[i] || '剧照 ' + String(i+1).padStart(2,'0')}</span></div>`;
+    }
+  }
+
+  document.getElementById('detailGallery').innerHTML = `
+    <div class="gallery-viewport" id="galleryViewport">
+      <div class="gallery-counter" id="galleryCounter">01 / ${String(galleryCount).padStart(2,'0')}</div>
+      <div class="gallery-track" id="galleryTrack">
+        ${galleryItemsHtml}
+      </div>
+      <div class="gallery-cursor-hint">
+        <span class="line"></span>
+        <span>MOVE CURSOR</span>
+        <span class="line"></span>
+      </div>
+    </div>
+  `;
+
+  // 初始化视差画廊
+  initGalleryParallax();
+
+  document.getElementById('detailDesc').innerHTML = `<p>${work.desc}</p>`;
+
+  // 上下篇
+  const idx = works.findIndex(w => w.id === parseInt(id));
+  const prev = works[idx - 1];
+  const next = works[idx + 1];
+
+  const prevLink = document.getElementById('detailPrev');
+  const nextLink = document.getElementById('detailNext');
+
+  if (prev) {
+    prevLink.href = '#/work/' + prev.id;
+    document.getElementById('detailPrevTitle').textContent = prev.title;
+    prevLink.style.opacity = '1';
+  } else {
+    prevLink.style.opacity = '0.2';
+    prevLink.href = '#/works';
+    document.getElementById('detailPrevTitle').textContent = '返回列表';
+  }
+
+  if (next) {
+    nextLink.href = '#/work/' + next.id;
+    document.getElementById('detailNextTitle').textContent = next.title;
+    nextLink.style.opacity = '1';
+  } else {
+    nextLink.style.opacity = '0.2';
+    nextLink.href = '#/works';
+    document.getElementById('detailNextTitle').textContent = '返回列表';
+  }
+
+  // 标题拆分动画
+  setTimeout(() => splitText(document.getElementById('detailTitle')), 100);
+}
+
+/* ============================================================
+   路由系统
+   ============================================================ */
+const pages = {
+  'home': 'page-home',
+  'works': 'page-works',
+  'detail': 'page-detail',
+  'explore': 'page-explore',
+  'about': 'page-about',
+  'awards': 'page-awards',
+  'contact': 'page-contact'
+};
+
+let currentPage = 'home';
+let isFirstLoad = true;
+
+function navigateTo(hash) {
+  SoundSystem.playSparkle();
+  if (location.hash === hash) {
+    handleRoute();
+  } else {
+    location.hash = hash;
+  }
+}
+
+function handleRoute() {
+  const hash = location.hash.slice(2) || 'home';
+  const parts = hash.split('/');
+  const route = parts[0] || 'home';
+
+  let pageKey = 'home';
+  if (route === 'works') pageKey = 'works';
+  else if (route === 'work') pageKey = 'detail';
+  else if (route === 'explore') pageKey = 'explore';
+  else if (route === 'about') pageKey = 'about';
+  else if (route === 'awards') pageKey = 'awards';
+  else if (route === 'contact') pageKey = 'contact';
+  else pageKey = 'home';
+
+  if (pageKey === currentPage && route !== 'work' && route !== 'explore') {
+    return;
+  }
+
+  const showPage = () => {
+    Object.values(pages).forEach(id => {
+      document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById(pages[pageKey]).classList.add('active');
+    currentPage = pageKey;
+
+    // 切换到首页时播放入场音效
+    if (pageKey === 'home') {
+      setTimeout(() => SoundSystem.playEnter(), 150);
+    }
+
+    // 首页模式：隐藏左侧导航
+    document.body.classList.toggle('home-mode', pageKey === 'home');
+
+    document.querySelectorAll('.nav-menu a').forEach(a => {
+      a.classList.remove('active');
+      if (a.dataset.nav === pageKey || (pageKey === 'detail' && a.dataset.nav === 'works') || (pageKey === 'explore' && a.dataset.nav === 'works')) {
+        a.classList.add('active');
+      }
+    });
+
+    if (pageKey === 'home') {
+      renderFeatured();
+      initHeroNav();
+      setTimeout(() => splitText(document.getElementById('heroTitle')), 100);
+    } else if (pageKey === 'works') {
+      renderWorks();
+      setTimeout(() => splitText(document.querySelector('#page-works .page-title')), 100);
+    } else if (pageKey === 'detail') {
+      renderDetail(parts[1]);
+    } else if (pageKey === 'explore') {
+      renderExplore(parts[1]);
+    } else if (pageKey === 'about') {
+      setTimeout(() => splitText(document.querySelector('#page-about .about-title')), 100);
+    } else if (pageKey === 'awards') {
+      setTimeout(() => splitText(document.querySelector('#page-awards .awards-title')), 100);
+    } else if (pageKey === 'contact') {
+      setTimeout(() => splitText(document.querySelector('#page-contact .contact-title')), 100);
+    }
+
+    initReveal();
+    window.scrollTo(0, 0);
+  };
+
+  // 首次加载直接显示，不播放过渡动画
+  if (isFirstLoad) {
+    isFirstLoad = false;
+    showPage();
+    return;
+  }
+
+  // 探索页面内切换分类：直接渲染，不播放过渡动画
+  if (currentPage === 'explore' && pageKey === 'explore') {
+    showPage();
+    return;
+  }
+
+  // 后续切换播放过渡动画
+  const transition = document.getElementById('pageTransition');
+  transition.classList.add('active');
+  setTimeout(showPage, 350);
+  setTimeout(() => transition.classList.remove('active'), 800);
+}
+
+window.addEventListener('hashchange', handleRoute);
+
+/* ============================================================
+   作品探索页（长滚动连贯浏览）- 五分类预渲染，点击直接切换
+   ============================================================ */
+let exploreCurrentCat = 'producing';
+let exploreScrollListener = null;
+let exploreGalleries = [];
+let exploreInited = false;
+
+const catLabels = {
+  'producing': '制片作品',
+  'art': '美术作品',
+  'still': '剧照作品',
+  'photo': '摄影作品',
+  'aigc': 'AIGC创作'
+};
+
+const catOrder = ['producing', 'art', 'still', 'photo', 'aigc'];
+
+// 预渲染所有分类内容（只执行一次）
+function initExploreAll() {
+  if (exploreInited) return;
+  exploreInited = true;
+
+  catOrder.forEach(cat => {
+    const catWorks = works.filter(w => w.category === cat);
+    if (catWorks.length === 0) return;
+
+    // 预渲染左侧导航
+    const navContainer = document.querySelector('.side-nav-cat[data-cat="' + cat + '"]');
+    if (navContainer) {
+      navContainer.innerHTML = catWorks.map((w, i) => `
+        <div class="work-nav-item" data-explore-idx="${i}" data-cat="${cat}" data-hover>
+          <span class="idx">${String(i + 1).padStart(2, '0')}</span>${w.title}
+        </div>
+      `).join('');
+    }
+
+    // 预渲染作品sections
+    const sectionsContainer = document.querySelector('.explore-sections-cat[data-cat="' + cat + '"]');
+    if (sectionsContainer) {
+      sectionsContainer.innerHTML = catWorks.map((w, i) => {
+        const imgCount = (w.images && w.images.length) ? w.images.length : 0;
+        const isSingle = imgCount === 1;
+        const imagesHtml = (w.images && w.images.length > 0)
+          ? (isSingle ? '' : `<div class="gallery-spacer spacer-left"></div>`) + w.images.map(img => `<img class="gallery-img" src="${img}" alt="${w.title}">`).join('') + (isSingle ? '' : `<div class="gallery-spacer spacer-right"></div>`)
+          : `<div class="gallery-placeholder img-placeholder"><span>${w.catLabel}作品</span></div>`.repeat(3);
+
+        // AIGC分类：左右布局（左图片滑动，右视频窗口）
+        if (cat === 'aigc') {
+          const hasImages = imgCount > 0;
+          const hasMultiVideos = w.videos && w.videos.length > 0;
+          const sectionClass = hasImages ? '' : (hasMultiVideos ? 'multi-video' : 'video-only');
+          // 多视频网格HTML
+          const multiVideosHtml = hasMultiVideos ? w.videos.map((v, vi) => `
+                <div class="video-player grid-video" data-video="${v}">
+                  <video src="${v}" playsinline webkit-playsinline preload="metadata" muted controlslist="nodownload nofullscreen noremoteplayback" oncontextmenu="return false;"></video>
+                  <button class="video-play-btn" title="播放视频">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z"></path>
+                    </svg>
+                  </button>
+                </div>
+              `).join('') : '';
+          return `
+        <section class="explore-section aigc-layout ${sectionClass}" data-explore-idx="${i}" data-cat="${cat}" id="explore-section-${cat}-${i}">
+          <div class="section-header">
+            <div class="section-num">${String(i + 1).padStart(2, '0')} / ${String(catWorks.length).padStart(2, '0')}</div>
+            <h2 class="section-title">${w.title}</h2>
+            <div class="section-meta">
+              <span>${w.role}</span>
+              <span>${w.year}</span>
+              <span>${w.duration}</span>
+            </div>
+          </div>
+          <div class="aigc-content">
+            ${hasImages ? `
+            <div class="aigc-left">
+              <div class="aigc-label">图片快速导览</div>
+              <div class="explore-gallery ${isSingle ? 'single-image' : ''}" data-gallery-idx="${i}" data-cat="${cat}">
+                <div class="explore-gallery-track">
+                  ${imagesHtml}
+                </div>
+              </div>
+            </div>
+            ` : ''}
+            <div class="aigc-right">
+              <div class="aigc-label">${hasMultiVideos ? '竖屏样片合集' : '点击播放视频'}</div>
+              ${hasMultiVideos ? `
+              <div class="video-grid">
+                ${multiVideosHtml}
+              </div>
+              ` : (w.video ? `
+              <div class="video-player" data-video="${w.video}" data-poster="${w.images && w.images[0] ? w.images[0] : ''}">
+                <video src="${w.video}" playsinline webkit-playsinline preload="metadata" poster="${w.images && w.images[0] ? w.images[0] : ''}" muted controlslist="nodownload nofullscreen noremoteplayback" oncontextmenu="return false;"></video>
+                <button class="video-play-btn" title="播放视频">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"></path>
+                  </svg>
+                </button>
+              </div>
+              ` : `
+              <div class="video-placeholder">
+                <div class="video-placeholder-inner">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>视频待补充</span>
+                </div>
+              </div>
+              `)}
+            </div>
+          </div>
+          <div class="explore-desc">
+            <div class="role-tag">${w.catLabel} / ROLE</div>
+            <p>${w.desc}</p>
+          </div>
+        </section>`;
+        }
+
+        return `
+        <section class="explore-section" data-explore-idx="${i}" data-cat="${cat}" id="explore-section-${cat}-${i}">
+          <div class="section-header">
+            <div class="section-num">${String(i + 1).padStart(2, '0')} / ${String(catWorks.length).padStart(2, '0')}</div>
+            <h2 class="section-title">${w.title}</h2>
+            <div class="section-meta">
+              <span>${w.role}</span>
+              <span>${w.year}</span>
+              <span>${w.duration}</span>
+            </div>
+          </div>
+          <div class="explore-gallery ${isSingle ? 'single-image' : ''}" data-gallery-idx="${i}" data-cat="${cat}">
+            <div class="explore-gallery-track">
+              ${imagesHtml}
+            </div>
+          </div>
+          <div class="explore-desc">
+            <div class="role-tag">${w.catLabel} / ROLE</div>
+            <p>${w.desc}</p>
+          </div>
+        </section>`;
+      }).join('');
+    }
+  });
+
+  // 绑定所有左侧导航的hover和click事件
+  let hoverScrollTimer = null;
+  document.querySelectorAll('.work-nav-item').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+      const idx = parseInt(item.dataset.exploreIdx);
+      const cat = item.dataset.cat;
+      clearTimeout(hoverScrollTimer);
+      hoverScrollTimer = setTimeout(() => {
+        const section = document.getElementById('explore-section-' + cat + '-' + idx);
+        if (section) {
+          window.scrollTo({ top: section.offsetTop, behavior: 'smooth' });
+        }
+      }, 180);
+    });
+    item.addEventListener('mouseleave', () => clearTimeout(hoverScrollTimer));
+    item.addEventListener('click', () => {
+      const idx = parseInt(item.dataset.exploreIdx);
+      const cat = item.dataset.cat;
+      const section = document.getElementById('explore-section-' + cat + '-' + idx);
+      if (section) {
+        window.scrollTo({ top: section.offsetTop, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // 绑定顶部分类按钮点击事件（直接切换，不经过路由）
+  document.querySelectorAll('#exploreCatBar a').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cat = btn.dataset.cat;
+      switchExploreCat(cat);
+      history.replaceState(null, '', '#/explore/' + cat);
+    });
+  });
+
+  // 初始化所有画廊的跟随鼠标横向滚动
+  initExploreGalleries();
+
+  // 重新绑定视频放大按钮（预渲染后）
+  if (window._rebindVideoExpandBtns) window._rebindVideoExpandBtns();
+
+  // 初始化视频放大弹窗
+  initVideoModal();
+
+  // 滚动监听
+  window.addEventListener('scroll', exploreScrollHandler);
+}
+
+// 滚动监听：高亮当前作品
+function exploreScrollHandler() {
+  const visibleContainer = document.querySelector('.explore-sections-cat[data-cat="' + exploreCurrentCat + '"]');
+  if (!visibleContainer) return;
+  const sections = visibleContainer.querySelectorAll('.explore-section');
+  const scrollPos = window.scrollY + window.innerHeight / 2;
+  let currentIdx = 0;
+  sections.forEach((sec, i) => {
+    if (sec.offsetTop <= scrollPos) currentIdx = i;
+  });
+
+  // 更新左侧导航高亮
+  const visibleNav = document.querySelector('.side-nav-cat[data-cat="' + exploreCurrentCat + '"]');
+  if (visibleNav) {
+    visibleNav.querySelectorAll('.work-nav-item').forEach(item => {
+      item.classList.toggle('active', parseInt(item.dataset.exploreIdx) === currentIdx);
+    });
+  }
+
+  // 更新面包屑当前作品
+  const catWorks = works.filter(w => w.category === exploreCurrentCat);
+  if (catWorks[currentIdx]) {
+    document.getElementById('exploreBreadcrumbCurrent').textContent = '《' + catWorks[currentIdx].title + '》';
+  }
+}
+
+// 切换分类（直接显示/隐藏，不重新渲染）
+function switchExploreCat(cat) {
+  if (cat === exploreCurrentCat) return;
+  exploreCurrentCat = cat;
+
+  // 切换sections显示
+  document.querySelectorAll('.explore-sections-cat').forEach(el => {
+    el.style.display = el.dataset.cat === cat ? 'block' : 'none';
+  });
+
+  // 切换左侧导航显示
+  document.querySelectorAll('.side-nav-cat').forEach(el => {
+    el.style.display = el.dataset.cat === cat ? 'block' : 'none';
+  });
+
+  // 更新面包屑和分类标签
+  document.getElementById('exploreBreadcrumbCat').textContent = catLabels[cat];
+  document.getElementById('exploreCatLabel').textContent = catLabels[cat];
+  const catWorks = works.filter(w => w.category === cat);
+  if (catWorks[0]) {
+    document.getElementById('exploreBreadcrumbCurrent').textContent = '《' + catWorks[0].title + '》';
+  }
+
+  // 更新顶部分类按钮active状态
+  document.querySelectorAll('#exploreCatBar a').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cat === cat);
+  });
+
+  // 滚动到顶部
+  window.scrollTo(0, 0);
+}
+
+// 路由进入探索页时调用
+function renderExplore(cat) {
+  initExploreAll();
+  if (cat && cat !== exploreCurrentCat) {
+    switchExploreCat(cat);
+  }
+
+  // 如果指定了要定位的作品，滚动到对应位置
+  if (window.exploreTargetId !== undefined && window.exploreTargetId !== null) {
+    const targetId = window.exploreTargetId;
+    const work = works.find(w => w.id === targetId);
+    if (work) {
+      const catWorks = works.filter(w => w.category === work.category);
+      const targetIdx = catWorks.findIndex(w => w.id === targetId);
+      if (targetIdx >= 0) {
+        window.exploreTargetId = null;
+        if (work.category !== exploreCurrentCat) {
+          switchExploreCat(work.category);
+        }
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const section = document.getElementById('explore-section-' + work.category + '-' + targetIdx);
+            if (section) {
+              window.scrollTo({ top: section.offsetTop, behavior: 'auto' });
+            }
+          });
+        });
+        return;
+      }
+    }
+    window.exploreTargetId = null;
+  }
+  window.scrollTo(0, 0);
+}
+
+function initExploreGalleries() {
+  // 清理旧的
+  exploreGalleries.forEach(g => {
+    if (g.rafId) cancelAnimationFrame(g.rafId);
+  });
+  exploreGalleries = [];
+
+  document.querySelectorAll('.explore-gallery').forEach(gallery => {
+    // 单图作品不初始化滚动
+    if (gallery.classList.contains('single-image')) return;
+
+    const track = gallery.querySelector('.explore-gallery-track');
+    if (!track) return;
+
+    let targetX = 0;
+    let currentX = 0;
+    let rafId = null;
+
+    // 拖拽状态
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartScroll = 0;
+    let velocityX = 0;
+    let lastX = 0;
+    let isInertia = false;
+    let currentZoomImg = null;
+
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+    const getRange = () => Math.max(0, track.scrollWidth - gallery.clientWidth);
+
+    // 鼠标位置跟随
+    const updateTargetByMouse = (clientX) => {
+      const rect = gallery.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const percent = Math.max(0, Math.min(1, x / rect.width));
+      targetX = -(percent * getRange());
+    };
+
+    // 放大光标下的图片
+    const zoomImageAt = (clientX) => {
+      // 移除之前的放大
+      if (currentZoomImg) {
+        currentZoomImg.classList.remove('zoom');
+        currentZoomImg = null;
+      }
+      // 找到光标下的图片
+      const el = document.elementFromPoint(clientX, gallery.getBoundingClientRect().top + gallery.clientHeight / 2);
+      if (el && el.closest('.gallery-img, .gallery-placeholder')) {
+        currentZoomImg = el.closest('.gallery-img, .gallery-placeholder');
+        currentZoomImg.classList.add('zoom');
+      }
+    };
+
+    // 开始拖拽
+    const startDrag = (clientX) => {
+      isDragging = true;
+      isInertia = false;
+      dragStartX = clientX;
+      dragStartScroll = currentX;
+      velocityX = 0;
+      lastX = clientX;
+      gallery.style.cursor = 'grabbing';
+      gallery.classList.add('dragging');
+      if (!isMobile) zoomImageAt(clientX);
+    };
+
+    // 拖拽中
+    const moveDrag = (clientX) => {
+      if (!isDragging) return;
+      const deltaX = clientX - dragStartX;
+      let newX = dragStartScroll + deltaX;
+      const range = getRange();
+      newX = Math.max(-range, Math.min(0, newX));
+      targetX = newX;
+      velocityX = clientX - lastX;
+      lastX = clientX;
+      if (!isMobile) zoomImageAt(clientX);
+    };
+
+    // 结束拖拽
+    const endDrag = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      isInertia = true;
+      gallery.style.cursor = 'grab';
+      gallery.classList.remove('dragging');
+      if (currentZoomImg) {
+        currentZoomImg.classList.remove('zoom');
+        currentZoomImg = null;
+      }
+    };
+
+    // 鼠标移动：未拖拽时位置跟随，拖拽时拖拽跟随
+    const onMouseMove = (e) => {
+      if (isDragging) {
+        moveDrag(e.clientX);
+      } else {
+        updateTargetByMouse(e.clientX);
+      }
+    };
+
+    // 鼠标事件
+    gallery.addEventListener('mousemove', onMouseMove);
+    gallery.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startDrag(e.clientX);
+    });
+    document.addEventListener('mouseup', endDrag);
+
+    // 触摸事件：拖拽模式
+    gallery.addEventListener('touchstart', (e) => {
+      startDrag(e.touches[0].clientX);
+    }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (isDragging) {
+        moveDrag(e.touches[0].clientX);
+      }
+    }, { passive: true });
+    document.addEventListener('touchend', endDrag);
+
+    gallery.style.cursor = 'grab';
+
+    function animate() {
+      if (isInertia && !isDragging) {
+        // 惯性滑动
+        velocityX *= 0.92;
+        targetX += velocityX;
+        const range = getRange();
+        targetX = Math.max(-range, Math.min(0, targetX));
+        if (Math.abs(velocityX) < 0.3) {
+          isInertia = false;
+        }
+      }
+
+      currentX += (targetX - currentX) * 0.12;
+      // 接近目标时直接对齐，确保进度条能到底
+      if (Math.abs(targetX - currentX) < 0.3) {
+        currentX = targetX;
+      }
+      track.style.transform = `translateY(-50%) translateX(${currentX}px)`;
+
+      // AIGC 3D轮播 效果
+      if (gallery.dataset.cat === 'aigc') {
+        const centerX = gallery.clientWidth / 2;
+        const imgs = track.querySelectorAll('.gallery-img');
+        imgs.forEach(img => {
+          const imgCenter = img.offsetLeft + img.offsetWidth / 2 + currentX;
+          const offset = imgCenter - centerX;
+          const normalized = offset / (gallery.clientWidth * 0.5);
+          const absNorm = Math.abs(normalized);
+          // 近大远小：Z轴深度
+          const translateZ = Math.max(-200, -absNorm * 180);
+          // 旋转角度
+          const rotateY = Math.max(-45, Math.min(45, normalized * -40));
+          // 缩放
+          const scale = Math.max(0.6, 1 - absNorm * 0.2);
+          // 层级
+          const zIndex = Math.round(100 - absNorm * 100);
+          // 透明度
+          const opacity = Math.max(0.35, 1 - absNorm * 0.5);
+          // 景深模糊
+          const blur = Math.min(3, absNorm * 2.5);
+          img.style.transform = `translateZ(${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`;
+          img.style.zIndex = zIndex;
+          img.style.opacity = opacity;
+          img.style.filter = `blur(${blur}px)`;
+        });
+      }
+
+      rafId = requestAnimationFrame(animate);
+    }
+    animate();
+
+    exploreGalleries.push({ viewport: gallery, rafId });
+  });
+}
+
+// 初始化：直接显示首页
+document.getElementById('page-home').classList.add('active');
+currentPage = 'home';
+document.body.classList.add('home-mode');
+
+if (location.hash && location.hash !== '#/') {
+  // 如果有具体hash，跳转到对应页面
+  handleRoute();
+} else {
+  // 否则直接初始化首页
+  document.querySelectorAll('.nav-menu a').forEach(a => {
+    a.classList.toggle('active', a.dataset.nav === 'home');
+  });
+  renderFeatured();
+  initHeroNav();
+  initStickerParallax();
+  initSoundSystem();
+  splitText(document.getElementById('heroTitle'));
+  initReveal();
+}
+
+// 视频放大弹窗
+function initVideoModal() {
+  const modal = document.getElementById('videoModal');
+  const modalVideo = document.getElementById('videoModalVideo');
+  const modalClose = document.getElementById('videoModalClose');
+  const modalMask = modal.querySelector('.video-modal-mask');
+
+  // 确保鼠标始终可见
+  modal.style.cursor = 'auto';
+  modalVideo.style.cursor = 'pointer';
+
+  // 点击视频切换播放/暂停
+  modalVideo.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (modalVideo.paused) {
+      modalVideo.play();
+    } else {
+      modalVideo.pause();
+    }
+  });
+
+  // 绑定所有播放按钮
+  function bindExpandBtns() {
+    document.querySelectorAll('.video-play-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const player = btn.closest('.video-player');
+        const videoSrc = player.dataset.video;
+        const poster = player.dataset.poster;
+        const videoEl = player.querySelector('video');
+        if (!videoSrc) return;
+
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+        if (isMobileDevice) {
+          // 手机端：弹窗播放（更可靠），竖屏视频自动适应
+          const isVertical = player.classList.contains('grid-video');
+          modalVideo.src = videoSrc;
+          if (poster) modalVideo.poster = poster;
+          modal.classList.add('active');
+          if (isVertical) {
+            modal.classList.add('vertical-video');
+          } else {
+            modal.classList.remove('vertical-video');
+          }
+          setTimeout(() => {
+            modalVideo.play().catch(() => {});
+          }, 200);
+        } else {
+          // 电脑端：弹出居中播放框
+          modalVideo.src = videoSrc;
+          if (poster) modalVideo.poster = poster;
+          modal.classList.add('active');
+          setTimeout(() => {
+            modalVideo.play().catch(() => {});
+          }, 200);
+        }
+      });
+    });
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+    modalVideo.pause();
+    modalVideo.src = '';
+  }
+
+  modalClose.addEventListener('click', closeModal);
+  modalMask.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeModal();
+    }
+  });
+
+  // 初始绑定
+  bindExpandBtns();
+
+  // 暴露重新绑定的方法（探索页预渲染后调用）
+  window._rebindVideoExpandBtns = bindExpandBtns;
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
