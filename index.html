@@ -2046,6 +2046,18 @@ body.nav-open .main-wrapper {
 .explore-section.aigc-layout.image-only .aigc-left {
   width: 100%;
 }
+/* 纯图片AIGC：轮播占满宽度，图片完整显示 */
+.explore-section.aigc-layout.image-only .aigc-left {
+  width: 100% !important;
+  padding: 0 !important;
+}
+.explore-section.aigc-layout.image-only .explore-gallery {
+  max-width: 100% !important;
+}
+.explore-section.aigc-layout.image-only .gallery-spacer {
+  display: none !important;
+}
+
 
 /* 无图片仅视频时：视频占满宽度 */
 .explore-section.aigc-layout.video-only .aigc-content {
@@ -3964,7 +3976,8 @@ function initExploreAll() {
               </div>
             </div>
             ` : ''}
-            <div class="aigc-right">
+            ${hasAnyVideo ? `
+<div class="aigc-right">
               <div class="aigc-label">${hasMultiVideos ? '竖屏样片合集' : '点击播放视频'}</div>
               ${hasMultiVideos ? `
               <div class="video-grid">
@@ -3990,6 +4003,7 @@ function initExploreAll() {
               </div>
               `)}
             </div>
+` : ''}
           </div>
           <div class="explore-desc">
             <div class="role-tag">${w.catLabel} / ROLE</div>
@@ -4448,6 +4462,7 @@ function initVideoModal() {
 
 </body>
 </html>
+
 
 
 
