@@ -2038,6 +2038,15 @@ body.nav-open .main-wrapper {
   justify-content: flex-start;
 }
 
+
+/* 纯图片AIGC作品：图片占满宽度 */
+.explore-section.aigc-layout.image-only .aigc-content {
+  display: block;
+}
+.explore-section.aigc-layout.image-only .aigc-left {
+  width: 100%;
+}
+
 /* 无图片仅视频时：视频占满宽度 */
 .explore-section.aigc-layout.video-only .aigc-content {
   display: block;
@@ -3918,7 +3927,9 @@ function initExploreAll() {
         if (cat === 'aigc') {
           const hasImages = imgCount > 0;
           const hasMultiVideos = w.videos && w.videos.length > 0;
-          const sectionClass = hasImages ? '' : (hasMultiVideos ? 'multi-video' : 'video-only');
+          const hasSingleVideo = !!w.video;
+          const hasAnyVideo = hasMultiVideos || hasSingleVideo;
+          const sectionClass = !hasAnyVideo && hasImages ? 'image-only' : (hasImages ? '' : (hasMultiVideos ? 'multi-video' : 'video-only'));
           // 多视频网格HTML
           const multiVideosHtml = hasMultiVideos ? w.videos.map((v, vi) => `
                 <div class="video-player grid-video" data-video="${v}">
@@ -4436,6 +4447,7 @@ function initVideoModal() {
 
 </body>
 </html>
+
 
 
 
